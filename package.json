@@ -1,0 +1,34 @@
+{
+  "name": "serverless-aws-alias",
+  "version": "0.0.1",
+  "description": "Serverless plugin to support AWS function aliases",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hyperbrain/serverless-aws-alias.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Frank Schmid <fschmid740@googlemail.com>",
+  "license": "MIT",
+  "keywords": [
+    "serverless",
+    "plugin",
+    "1.0",
+    "aws",
+    "lambda",
+    "alias",
+    "aliases"
+  ],
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "eslint": "^3.15.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-lodash": "^2.3.4",
+    "eslint-plugin-promise": "^3.4.0"
+  }
+}
