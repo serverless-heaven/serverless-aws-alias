@@ -9,7 +9,6 @@ const BbPromise = require('bluebird')
     , Path = require('path')
 		, validate = require('./lib/validate')
 		, configureAliasStack = require('./lib/configureAliasStack')
-		, extractAliasResources = require('./lib/extractAliasResources')
 		, createAliasStack = require('./lib/createAliasStack')
 		, updateAliasStack = require('./lib/updateAliasStack')
 		, aliasRestructureStack = require('./lib/aliasRestructureStack')
@@ -52,7 +51,6 @@ class AwsAlias {
 			updateAliasStack,
 			removeAliasStack,
 			aliasRestructureStack,
-			extractAliasResources,
 			uploadAliasArtifacts,
 			setBucketName,
 			monitorStack

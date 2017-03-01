@@ -45,7 +45,7 @@ with the alias name as option value.
 Example:
 `serverless deploy --alias myAlias`
 
-## Aliases and API Gateway (not yet finished)
+## Aliases and API Gateway
 
 In Serverless stages are, as above mentioned, parallel stacks with parallel resources.
 Mapping the API Gateway resources to this semantics, each stage has its own API
@@ -69,6 +69,10 @@ what is deployed through Serverless and what by other means.
 Resources are deployed per alias. So you can create new resources without destroying
 the main alias for the stage. If you remove an alias the referenced resources will
 be removed too.
+
+*BEWARE: Currently the custom resources per alias must not be different. As soon
+as the resource handling is implemented, the custom resources will behave exactly
+like the SLS resources and can be different per alias!*
 
 ## The alias command
 
