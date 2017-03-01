@@ -9,7 +9,7 @@ This plugin enables use of AWS aliases on Lambda functions. The term alias must 
 be mistaken as the stage. Aliases can be deployed to stages, e.g. if you work on
 different VCS branches in the same service, you can deploy your branch to a
 new alias. The alias deployment can contain a different set of functions (newly
-added ones or removed ones) and do not impact any other deployed alias.
+added ones or removed ones) and does not impact any other deployed alias.
 Aliases also can be used to provide a 'real' version promotion.
 
 As soon as the service is deployed with the plugin activated, it will create
@@ -45,7 +45,7 @@ with the alias name as option value.
 Example:
 `serverless deploy --alias myAlias`
 
-## Aliases and API Gateway
+## Aliases and API Gateway (not yet finished)
 
 In Serverless stages are, as above mentioned, parallel stacks with parallel resources.
 Mapping the API Gateway resources to this semantics, each stage has its own API
@@ -64,7 +64,7 @@ cleaner and the removal of an alias will also remove all logs associated to the 
 The log group is named `/serverless/<alias stack name>`. So you can clearly see
 what is deployed through Serverless and what by other means.
 
-## Resources
+## Resources (not yet finished)
 
 Resources are deployed per alias. So you can create new resources without destroying
 the main alias for the stage. If you remove an alias the referenced resources will
@@ -83,6 +83,10 @@ Example:
 Removes an alias and all its uniquely references functions and function versions.
 The alias name has to be specified with the `--alias` option.
 
+Functions and resources owned by removed aliases will be physically removed on
+the next deployment of any other alias. This is on purpose to keep CloudFormation
+API access at a minimum.
+
 ## Compatibility
 
 The alias plugin is compatible with all standard Serverless commands and switches.
@@ -95,7 +99,20 @@ the `sample` folder, that creates two functions and a DynamoDB table.
 Feel free to check everything - and of course report bugs immediately ;-)
 as I could not test each and every combination of resources, functions, etc.
 
-# Uninstall
+## Use case examples
+
+### Multiple developers work on different branches
+
+A common use case is that multiple developers work on different branches on the same
+service, e.g. they add new functions individually. Every developer can just
+deploy his version of the service to different aliases and use them. Neither
+the main (stage) alias is affected by them nor the other developers.
+
+If work is ceased on a branch and it is deleted, the alias can just be removed
+and on the next deployment of any other alias, the obsoleted functions will
+disappear automatically.
+
+## Uninstall
 
 If you are not happy with the plugin or just do not like me, you can easily get rid
 of the plugin without doing any harm to the deployed stuff. The plugin is
