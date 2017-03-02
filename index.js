@@ -62,12 +62,21 @@ class AwsAlias {
 			alias: {
 				usage: 'Show deployed aliases',
 				commands: {
+					deploy: {
+						lifecycleEvents: [
+							'validate',
+							'uploadArtifacts',
+							'updateAliasStack',
+							'done'
+						]
+					},
 					remove: {
 						usage: 'Remove a deployed alias',
 						lifecycleEvents: [
 							'removeStack'
 						],
 						options: {
+							usage: 'Internal use only',
 							alias: {
 								usage: 'Name of the alias',
 								shortcut: 'a',
@@ -103,8 +112,23 @@ class AwsAlias {
 				.then(this.aliasRestructureStack),
 			'after:deploy:deploy': () => BbPromise.bind(this)
 				.then(this.setBucketName)
-				.then(this.uploadAliasArtifacts)
+				.then(() => {
+					// Workaround for the missing functionality to hide commands
+					this._triggeredFromHook = true;
+					// Spawn alias:deploy lifecycle
+					return this._serverless.pluginManager.run(['alias', 'deploy']);
+				}),
+			'alias:deploy:validate': () => {
+				return this._triggeredFromHook ? BbPromise.resolve() : BbPromise.reject(new Error('Internal use only'));
+			},
+			'alias:deploy:uploadArtifacts': () => BbPromise.bind(this)
+				.then(this.uploadAliasArtifacts),
+			'alias:deploy:updateAliasStack': () => BbPromise.bind(this)
 				.then(this.updateAliasStack),
+			'alias:deploy:done': () => {
+				this._serverless.cli.log(`Successfully deployed alias ${this._alias}`);
+				return BbPromise.resolve();
+			},
 			'alias:remove:removeStack': () => BbPromise.bind(this)
 				.then(this.removeAliasStack)
 		};

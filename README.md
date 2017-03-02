@@ -131,9 +131,17 @@ You're all set.
 ## Developer information
 ### Lifecycle events
 
-The plugin adds the following lifecycle events that can be used with hooks:
+The plugin adds the following lifecycle events that can be hooked by other plugins:
 
+* alias:deploy:uploadArtifacts
+  Upload alias dependent CF definitions to S3.
+* alias:deploy:updateAliasStack
+  Update the alias CF stack.
+* alias:deploy:done
+  The Alias plugin is successfully finished. Hook this instead of 'after:deploy:deploy'
+	to make sure that your plugin gets triggered right after the alias plugin is done.
 * alias:remove:removeStack
+  The alias stack is removed from CF.
 
 ### CF template information
 
