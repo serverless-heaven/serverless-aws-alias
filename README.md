@@ -42,6 +42,7 @@ This adds an additional level of stability to your deployment process.
 
 To deploy an alias to a stage, just add the `--alias` option to `serverless deploy`
 with the alias name as option value.
+
 Example:
 `serverless deploy --alias myAlias`
 
@@ -50,9 +51,11 @@ Example:
 In Serverless stages are, as above mentioned, parallel stacks with parallel resources.
 Mapping the API Gateway resources to this semantics, each stage has its own API
 deployment.
+
 Aliases fit into this very well and exactly as with functions an alias is a kind
 of "tag" within the API deployment of one stage. Curiously AWS named this "stage"
 in API Gateway, so it is not to be confused with Serverless stages.
+
 Thus an alias deployment will create an API Gateway stage with the alias name
 as name.
 
@@ -78,6 +81,7 @@ like the SLS resources and can be different per alias!*
 
 Without specifying a subcommand the alias command will list all currently deployed
 aliases.
+
 Example:
 `serverless alias`
 
@@ -128,19 +132,26 @@ non-intrusive and does only add some output variables to the main stack:
 
 You're all set.
 
-## Developer information
+## For developers
 ### Lifecycle events
 
 The plugin adds the following lifecycle events that can be hooked by other plugins:
 
 * alias:deploy:uploadArtifacts
+
   Upload alias dependent CF definitions to S3.
+
 * alias:deploy:updateAliasStack
+
   Update the alias CF stack.
+
 * alias:deploy:done
+
   The Alias plugin is successfully finished. Hook this instead of 'after:deploy:deploy'
 	to make sure that your plugin gets triggered right after the alias plugin is done.
+
 * alias:remove:removeStack
+
   The alias stack is removed from CF.
 
 ### CF template information
@@ -159,4 +170,5 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
-* 0.1.0 Preview release
+* 0.1.1-alpha1 Full APIG support
+* 0.1.0-alpha1 Lambda function alias support
