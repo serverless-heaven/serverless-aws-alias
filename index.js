@@ -13,6 +13,7 @@ const BbPromise = require('bluebird')
 		, updateAliasStack = require('./lib/updateAliasStack')
 		, aliasRestructureStack = require('./lib/aliasRestructureStack')
 		, stackInformation = require('./lib/stackInformation')
+		, listAliases = require('./lib/listAliases')
 		, removeAliasStack = require('./lib/removeAliasStack')
 		, uploadAliasArtifacts = require('./lib/uploadAliasArtifacts');
 
@@ -50,6 +51,7 @@ class AwsAlias {
 			configureAliasStack,
 			createAliasStack,
 			updateAliasStack,
+			listAliases,
 			removeAliasStack,
 			aliasRestructureStack,
 			stackInformation,
@@ -60,9 +62,9 @@ class AwsAlias {
 
 		this._commands = {
 			alias: {
-				usage: 'Show deployed aliases',
 				commands: {
 					deploy: {
+						usage: 'Internal use only',
 						lifecycleEvents: [
 							'validate',
 							'uploadArtifacts',
@@ -76,7 +78,6 @@ class AwsAlias {
 							'removeStack'
 						],
 						options: {
-							usage: 'Internal use only',
 							alias: {
 								usage: 'Name of the alias',
 								shortcut: 'a',
@@ -129,6 +130,8 @@ class AwsAlias {
 				this._serverless.cli.log(`Successfully deployed alias ${this._alias}`);
 				return BbPromise.resolve();
 			},
+			'after:info:info': () => BbPromise.bind(this)
+				.then(this.listAliases),
 			'alias:remove:removeStack': () => BbPromise.bind(this)
 				.then(this.removeAliasStack)
 		};

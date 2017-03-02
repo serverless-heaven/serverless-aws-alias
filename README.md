@@ -82,8 +82,11 @@ like the SLS resources and can be different per alias!*
 Without specifying a subcommand the alias command will list all currently deployed
 aliases.
 
-Example:
-`serverless alias`
+Example: `serverless alias`
+
+Options:
+
+`--verbose` Prints detailed alias information.
 
 ## Subcommands
 ### alias remove
