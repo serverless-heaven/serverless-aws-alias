@@ -12,6 +12,7 @@ const BbPromise = require('bluebird')
 		, createAliasStack = require('./lib/createAliasStack')
 		, updateAliasStack = require('./lib/updateAliasStack')
 		, aliasRestructureStack = require('./lib/aliasRestructureStack')
+		, stackInformation = require('./lib/stackInformation')
 		, removeAliasStack = require('./lib/removeAliasStack')
 		, uploadAliasArtifacts = require('./lib/uploadAliasArtifacts');
 
@@ -51,6 +52,7 @@ class AwsAlias {
 			updateAliasStack,
 			removeAliasStack,
 			aliasRestructureStack,
+			stackInformation,
 			uploadAliasArtifacts,
 			setBucketName,
 			monitorStack

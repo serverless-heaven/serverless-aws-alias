@@ -135,6 +135,13 @@ The plugin adds the following lifecycle events that can be used with hooks:
 
 * alias:remove:removeStack
 
+### CF template information
+
+If you hook after the alias:deploy:loadTemplates hook, you have access to the
+currently deployed CloudFormation templates which are stored within the global
+Serverless object: _serverless.service.provider.deployedCloudFormationTemplate_
+and _serverless.service.provider.deployedAliasTemplates[]_.
+
 ## Ideas
 
 * The master alias for a stage could be protected by a separate stack policy that
