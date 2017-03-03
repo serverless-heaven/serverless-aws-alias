@@ -77,16 +77,16 @@ be removed too.
 as the resource handling is implemented, the custom resources will behave exactly
 like the SLS resources and can be different per alias!*
 
+## Serverless info integration
+
+The plugin integrates with the Serverless info command. It will extend the information
+that is printed with the list of deployed aliases.
+
+In verbose mode (`serverless info -v`) it will additionally print the names
+of the lambda functions deployed to each stage with the version numbers the
+alias points to.
+
 ## The alias command
-
-Without specifying a subcommand the alias command will list all currently deployed
-aliases.
-
-Example: `serverless alias`
-
-Options:
-
-`--verbose` Prints detailed alias information.
 
 ## Subcommands
 ### alias remove
