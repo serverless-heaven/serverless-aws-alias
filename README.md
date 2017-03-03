@@ -173,5 +173,6 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 0.1.2-alpha1 Integration with "serverless info"
 * 0.1.1-alpha1 Full APIG support
 * 0.1.0-alpha1 Lambda function alias support
