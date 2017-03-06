@@ -67,15 +67,27 @@ cleaner and the removal of an alias will also remove all logs associated to the 
 The log group is named `/serverless/<alias stack name>`. So you can clearly see
 what is deployed through Serverless and what by other means.
 
-## Resources (not yet finished)
+## Resources
 
 Resources are deployed per alias. So you can create new resources without destroying
 the main alias for the stage. If you remove an alias the referenced resources will
 be removed too.
 
-*BEWARE: Currently the custom resources per alias must not be different. As soon
-as the resource handling is implemented, the custom resources will behave exactly
-like the SLS resources and can be different per alias!*
+However, logical resource ids are unique per stage. If you deploy a resource into
+one alias, it cannot be deployed with the same logical resource id and a different
+configuration into a different alias. Nevertheless, you can have the same resource
+defined within multiple aliases with the same configuration.
+
+This behavior exactly resembles the workflow of multiple developers working on
+different VCS branches.
+
+The master alias for the stage has a slightly different behavior. If you deploy
+here, you are allowed to change the configuration of the resource (e.g. the
+capacities of a DynamoDB table). This deployment will reconfigure the resource
+and on the next alias deployment of other developers, they will get an error
+that they have to update their configuration too - most likely, they updated it
+already, because normally you rebase or merge your upstream and get the changes
+automatically.
 
 ## Serverless info integration
 
