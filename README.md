@@ -59,6 +59,21 @@ in API Gateway, so it is not to be confused with Serverless stages.
 Thus an alias deployment will create an API Gateway stage with the alias name
 as name.
 
+## Reference the current alias in your service
+
+You can reference the currently deployed alias with `${self:provider.alias}` in
+your service YAML file. It should only be used for information, but not to
+set any resource names. Making anything hard-wired to the alias name might
+make the project unusable when deployed to different aliases because the resources
+are maintained in the master CF stack - the plugin takes care that resources
+are available.
+
+A valid use is to forward the alias name as environment variable to the lambdas
+and use it there for tagging of log messages. Then you see immediately which
+aliased lambda is the origin.
+
+Any other use is strongly discouraged.
+
 ## Log groups (not yet finished)
 
 Each alias has its own log group. From my experience with Serverless 0.5 where
@@ -169,7 +184,7 @@ The plugin adds the following lifecycle events that can be hooked by other plugi
 
   The alias stack is removed from CF.
 
-### CF template information
+### CF template information (not yet implemented)
 
 If you hook after the alias:deploy:loadTemplates hook, you have access to the
 currently deployed CloudFormation templates which are stored within the global

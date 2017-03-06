@@ -27,6 +27,9 @@ class AwsAlias {
 		this._alias = this._options.alias || this._stage;
 		this._stackName = this._provider.naming.getStackName();
 
+		// Make alias available as ${self:provider.alias}
+		this._serverless.service.provider.alias = this._alias;
+
 		/**
 		 * Load stack helpers from Serverless installation.
 		 */
