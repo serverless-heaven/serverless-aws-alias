@@ -162,6 +162,15 @@ non-intrusive and does only add some output variables to the main stack:
 
 You're all set.
 
+## Advanced use cases
+
+### VPC settings
+
+Aliases can have different VPC settings (serverless.yml:provider.vpc). So you
+can use an alias deployment also for testing lambda functions within other
+internal networks. This is possible because each deployed AWS lambda version
+contains its entire configuration (VPC settings, environment, etc.)
+
 ## For developers
 ### Lifecycle events
 
