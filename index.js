@@ -14,7 +14,7 @@ const BbPromise = require('bluebird')
 		, aliasRestructureStack = require('./lib/aliasRestructureStack')
 		, stackInformation = require('./lib/stackInformation')
 		, listAliases = require('./lib/listAliases')
-		, removeAliasStack = require('./lib/removeAliasStack')
+		, removeAlias = require('./lib/removeAlias')
 		, uploadAliasArtifacts = require('./lib/uploadAliasArtifacts');
 
 class AwsAlias {
@@ -55,7 +55,7 @@ class AwsAlias {
 			createAliasStack,
 			updateAliasStack,
 			listAliases,
-			removeAliasStack,
+			removeAlias,
 			aliasRestructureStack,
 			stackInformation,
 			uploadAliasArtifacts,
@@ -78,13 +78,18 @@ class AwsAlias {
 					remove: {
 						usage: 'Remove a deployed alias',
 						lifecycleEvents: [
-							'removeStack'
+							'remove'
 						],
 						options: {
 							alias: {
 								usage: 'Name of the alias',
 								shortcut: 'a',
 								required: true
+							},
+							verbose: {
+								usage: 'Enable verbose output',
+								shortcut: 'v',
+								required: false
 							}
 						}
 					}
@@ -112,8 +117,11 @@ class AwsAlias {
 			// Setup provider configuration reuses some of the functions of the AwsDeploy plugin
 			'after:deploy:setupProviderConfiguration': () => BbPromise.bind(this)
 				.then(this.createAliasStack),
+
 			'before:deploy:deploy': () => BbPromise.bind(this)
-				.then(this.aliasRestructureStack),
+				.then(this.aliasStackLoadCurrentCFStackAndDependencies)
+				.spread(this.aliasRestructureStack),
+
 			'after:deploy:deploy': () => BbPromise.bind(this)
 				.then(this.setBucketName)
 				.then(() => {
@@ -135,8 +143,11 @@ class AwsAlias {
 			},
 			'after:info:info': () => BbPromise.bind(this)
 				.then(this.listAliases),
-			'alias:remove:removeStack': () => BbPromise.bind(this)
-				.then(this.removeAliasStack)
+
+			'alias:remove:remove': () => BbPromise.bind(this)
+				.then(this.validate)
+				.then(this.aliasStackLoadCurrentCFStackAndDependencies)
+				.spread(this.removeAlias)
 		};
 	}
 
