@@ -118,12 +118,11 @@ alias points to.
 ## Subcommands
 ### alias remove
 
-Removes an alias and all its uniquely references functions and function versions.
+Removes an alias and all its uniquely referenced functions and function versions.
 The alias name has to be specified with the `--alias` option.
 
-Functions and resources owned by removed aliases will be physically removed on
-the next deployment of any other alias. This is on purpose to keep CloudFormation
-API access at a minimum.
+Functions and resources owned by removed aliases will be physically removed after
+the alias stack has been removed.
 
 ## Compatibility
 
@@ -209,6 +208,7 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 0.2.1-alpha1 Alias remove command removes unused resources
 * 0.2.0-alpha1 Support custom resources
 * 0.1.2-alpha1 Integration with "serverless info"
 * 0.1.1-alpha1 Full APIG support
