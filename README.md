@@ -288,6 +288,7 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 0.3.0-alpha1 Support lambda event subscriptions
 * 0.2.1-alpha1 Alias remove command removes unused resources
 * 0.2.0-alpha1 Support custom resources
 * 0.1.2-alpha1 Integration with "serverless info"
