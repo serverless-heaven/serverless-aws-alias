@@ -72,7 +72,8 @@ A valid use is to forward the alias name as environment variable to the lambdas
 and use it there for tagging of log messages. Then you see immediately which
 aliased lambda is the origin.
 
-Any other use is strongly discouraged.
+Any other use with the further exception of lambda event subscriptions (see below)
+is strongly discouraged.
 
 ## Log groups (not yet finished)
 
@@ -103,6 +104,85 @@ and on the next alias deployment of other developers, they will get an error
 that they have to update their configuration too - most likely, they updated it
 already, because normally you rebase or merge your upstream and get the changes
 automatically.
+
+## Event subscriptions
+
+Event subscriptions that are defined for a lambda function will be deployed per
+alias, i.e. the event will trigger the correct deployed aliased function.
+
+### Use with global resources
+
+Event subscriptions can reference resources that are available throughout all
+aliases if they reference the same resource id. That means that an event will
+trigger all aliases that are deployed with the subscription defined.
+
+Example:
+
+```
+functions:
+  testfct1:
+    description: 'My test function'
+    handler: handlers/testfct1/handler.handle
+    events:
+      - stream:
+          type: kinesis
+          arn: "arn:aws:kinesis:${self:provider.region}:XXXXXX:stream/my-kinesis"
+      - http:
+          method: GET
+          path: /func1
+resources:
+  Resources:
+	  myKinesis:
+		  Type: AWS::Kinesis::Stream
+			Properties:
+			  Name: my-kinesis
+			  ShardCount: 1
+```
+
+When a function is deployed to an alias it will now also listen to the *my-kinesis*
+stream events. This is useful, if you want to test new implementations with an
+existing resource.
+
+### Use with per alias resources
+
+There might be cases where you want to test with your private resources first,
+before you deploy changes to the master alias. Or you just want to create separate
+resources and event subscriptions per alias.
+
+The solution here is to make the resource id dependent on the alias name, so that
+the alias effectively owns the resource and the event subscription is bound to it.
+
+Example:
+
+```
+functions:
+  testfct1:
+    description: 'My test function'
+    handler: handlers/testfct1/handler.handle
+    events:
+      - stream:
+          type: kinesis
+          arn: "arn:aws:kinesis:${self:provider.region}:XXXXXX:stream/my-kinesis-${self.provider.alias}"
+      - http:
+          method: GET
+          path: /func1
+resources:
+  Resources:
+	  myKinesis${self:provider.alias}:
+		  Type: AWS::Kinesis::Stream
+			Properties:
+			  Name: my-kinesis-${self.provider.alias}
+			  ShardCount: 1
+```
+
+### Named streams
+
+The examples above use named streams. I know that this is not perfect as changes
+that require replacement are not possible. The reason for the named resources is,
+that Serverless currently only supports event arns that are strings.
+The change is already in the pipeline there. Afterwards you just can reference
+the event arns with CF functions like "Fn::GetAtt" or "Ref". I will update
+the examples as soon as it is fixed there and publicly available.
 
 ## Serverless info integration
 
