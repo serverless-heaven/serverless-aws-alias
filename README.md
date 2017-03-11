@@ -288,6 +288,7 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 0.3.2-alpha1 Allow initial project creation with activated alias plugin
 * 0.3.1-alpha1 Support Serverless 1.6 again with upgrade to 1.7+
 * 0.3.0-alpha1 Support lambda event subscriptions
 * 0.2.1-alpha1 Alias remove command removes unused resources
