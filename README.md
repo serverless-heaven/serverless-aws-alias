@@ -288,6 +288,7 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 0.3.4-alpha1 Bugfixes. IAM policy consolitaion. Show master alias information.
 * 0.3.3-alpha1 Bugfixes. Allow manual resource overrides. Allow methods attached to APIG root resource.
 * 0.3.2-alpha1 Allow initial project creation with activated alias plugin
 * 0.3.1-alpha1 Support Serverless 1.6 again with upgrade to 1.7+
