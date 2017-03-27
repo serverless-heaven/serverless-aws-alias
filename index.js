@@ -97,17 +97,6 @@ class AwsAlias {
 			}
 		};
 
-		/**
-		 * Deploy lifecycleEvents:
-				'cleanup',
-				'initialize',
-				'setupProviderConfiguration',
-				'createDeploymentArtifacts',
-				'compileFunctions',
-				'compileEvents',
-				'deploy',
-		*/
-
 		this._hooks = {
 			'before:deploy:initialize': () => BbPromise.bind(this)
 				.then(this.validate),
