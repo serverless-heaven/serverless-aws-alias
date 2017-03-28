@@ -59,6 +59,14 @@ in API Gateway, so it is not to be confused with Serverless stages.
 Thus an alias deployment will create an API Gateway stage with the alias name
 as name.
 
+### API Gateway stage and deployment
+
+The created API Gateway stage has the stage variables SERVERLESS_STAGE and
+SERVERLESS_ALIAS set to the corresponding values.
+
+Upcoming: There will be a configuration possibility to configure the APIG
+stage parameters separately soon.
+
 ## Reference the current alias in your service
 
 You can reference the currently deployed alias with `${self:provider.alias}` in
@@ -288,6 +296,7 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* upcoming: APIG support fixed. Support external IAM roles.
 * 0.3.4-alpha1 Bugfixes. IAM policy consolitaion. Show master alias information.
 * 0.3.3-alpha1 Bugfixes. Allow manual resource overrides. Allow methods attached to APIG root resource.
 * 0.3.2-alpha1 Allow initial project creation with activated alias plugin
