@@ -8,7 +8,8 @@
     "url": "git@github.com:hyperbrain/serverless-aws-alias.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "istanbul cover -x test node_modules/mocha/bin/_mocha test/**/*.js -- -R spec --recursive",
+    "eslint": "node node_modules/eslint/bin/eslint.js --ext .js lib"
   },
   "author": "Frank Schmid <fschmid740@googlemail.com>",
   "license": "MIT",
@@ -27,9 +28,16 @@
     "lodash": "^4.17.4"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "coveralls": "^2.13.1",
     "eslint": "^3.15.0",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-lodash": "^2.3.4",
-    "eslint-plugin-promise": "^3.4.0"
+    "eslint-plugin-promise": "^3.4.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.3.0",
+    "sinon": "^2.2.0",
+    "sinon-chai": "^2.10.0"
   }
 }
