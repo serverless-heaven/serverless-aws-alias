@@ -296,7 +296,7 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
-* upcoming: APIG support fixed. Support external IAM roles.
+* 0.4.0-alpha1 APIG support fixed. Support external IAM roles. BREAKING.
 * 0.3.4-alpha1 Bugfixes. IAM policy consolitaion. Show master alias information.
 * 0.3.3-alpha1 Bugfixes. Allow manual resource overrides. Allow methods attached to APIG root resource.
 * 0.3.2-alpha1 Allow initial project creation with activated alias plugin
