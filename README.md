@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/HyperBrain/serverless-aws-alias.svg?branch=master)](https://travis-ci.org/HyperBrain/serverless-aws-alias)
+[![Build Status](https://travis-ci.org/HyperBrain/serverless-aws-alias.svg?branch=master)](https://travis-ci.org/HyperBrain/serverless-aws-alias) [![Coverage Status](https://coveralls.io/repos/github/HyperBrain/serverless-aws-alias/badge.svg?branch=master)](https://coveralls.io/github/HyperBrain/serverless-aws-alias?branch=master)
 
 # Serverless AWS alias plugin
 
