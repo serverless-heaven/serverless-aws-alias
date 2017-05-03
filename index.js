@@ -66,15 +66,6 @@ class AwsAlias {
 		this._commands = {
 			alias: {
 				commands: {
-					deploy: {
-						usage: 'Internal use only',
-						lifecycleEvents: [
-							'validate',
-							'uploadArtifacts',
-							'updateAliasStack',
-							'done'
-						]
-					},
 					remove: {
 						usage: 'Remove a deployed alias',
 						lifecycleEvents: [
@@ -98,38 +89,27 @@ class AwsAlias {
 		};
 
 		this._hooks = {
-			'before:deploy:initialize': () => BbPromise.bind(this)
+			'before:package:initialize': () => BbPromise.bind(this)
 				.then(this.validate),
-			// Create alias stack definition and modify base stack
-			'after:deploy:initialize': () => BbPromise.bind(this)
-				.then(this.configureAliasStack),
-			// Setup provider configuration reuses some of the functions of the AwsDeploy plugin
-			'after:deploy:setupProviderConfiguration': () => BbPromise.bind(this)
-				.then(this.createAliasStack),
 
 			'before:deploy:deploy': () => BbPromise.bind(this)
+				.then(this.validate)
+				.then(this.configureAliasStack),
+
+			'before:aws:deploy:deploy:createStack': () => BbPromise.bind(this)
 				.then(this.aliasStackLoadCurrentCFStackAndDependencies)
 				.spread(this.aliasRestructureStack),
 
-			'after:deploy:deploy': () => BbPromise.bind(this)
+			'after:aws:deploy:deploy:createStack': () => BbPromise.bind(this)
+				.then(this.createAliasStack),
+
+			'after:aws:deploy:deploy:uploadArtifacts': () => BbPromise.bind(this)
 				.then(this.setBucketName)
-				.then(() => {
-					// Workaround for the missing functionality to hide commands
-					this._triggeredFromHook = true;
-					// Spawn alias:deploy lifecycle
-					return this._serverless.pluginManager.run(['alias', 'deploy']);
-				}),
-			'alias:deploy:validate': () => {
-				return this._triggeredFromHook ? BbPromise.resolve() : BbPromise.reject(new Error('Internal use only'));
-			},
-			'alias:deploy:uploadArtifacts': () => BbPromise.bind(this)
 				.then(this.uploadAliasArtifacts),
-			'alias:deploy:updateAliasStack': () => BbPromise.bind(this)
+
+			'after:aws:deploy:deploy:updateStack': () => BbPromise.bind(this)
 				.then(this.updateAliasStack),
-			'alias:deploy:done': () => {
-				this._serverless.cli.log(`Successfully deployed alias ${this._alias}`);
-				return BbPromise.resolve();
-			},
+
 			'after:info:info': () => BbPromise.bind(this)
 				.then(this.listAliases),
 

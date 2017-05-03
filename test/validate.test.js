@@ -30,7 +30,22 @@ describe('#validate()', () => {
 		awsAlias = new AWSAlias(serverless, options);
 	});
 
-	it('should reference the deploy plugin', () => {
+	it('should fail with old Serverless version', () => {
+		serverless.version = '1.6.0';
+		return expect(awsAlias.validate()).to.be.rejectedWith('must be >= 1.12.0');
+	});
+
+	it('should succeed Serverless version 1.12.0', () => {
+		serverless.version = '1.12.0';
+		return expect(awsAlias.validate()).to.eventually.be.fulfilled;
+	});
+
+	it('should succeed Serverless version 1.13.0', () => {
+		serverless.version = '1.13.0';
+		return expect(awsAlias.validate()).to.eventually.be.fulfilled;
+	});
+
+	it('should succeed', () => {
 		return expect(awsAlias.validate()).to.eventually.be.fulfilled;
 	});
 });
