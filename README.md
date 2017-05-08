@@ -5,9 +5,9 @@
 # Serverless AWS alias plugin
 
 BETA: This project is currently in beta. It has been tested with many, but not
-all constellations that are possible within a Serverless service. The plugin
-is currently tested with Serverless 1.6.1. It is important that you try that
-version and the newest one.
+all constellations that are possible within a Serverless service.
+
+**The plugin requires Serverless 1.12 or later!**
 
 This plugin enables use of AWS aliases on Lambda functions. The term alias must not
 be mistaken as the stage. Aliases can be deployed to stages, e.g. if you work on
