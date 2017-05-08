@@ -71,6 +71,9 @@ describe('AwsAlias', () => {
 		let createAliasStackStub;
 		let aliasStackLoadCurrentCFStackAndDependenciesStub;
 		let aliasRestructureStackStub;
+		let setBucketNameStub;
+		let uploadAliasArtifactsStub;
+		let updateAliasStackStub;
 
 		before(() => {
 			sandbox = sinon.sandbox.create();
@@ -83,38 +86,61 @@ describe('AwsAlias', () => {
 			createAliasStackStub = sandbox.stub(awsAlias, 'createAliasStack');
 			aliasStackLoadCurrentCFStackAndDependenciesStub = sandbox.stub(awsAlias, 'aliasStackLoadCurrentCFStackAndDependencies');
 			aliasRestructureStackStub = sandbox.stub(awsAlias, 'aliasRestructureStack');
+			setBucketNameStub = sandbox.stub(awsAlias, 'setBucketName');
+			uploadAliasArtifactsStub = sandbox.stub(awsAlias, 'uploadAliasArtifacts');
+			updateAliasStackStub = sandbox.stub(awsAlias, 'updateAliasStack');
 		});
 
 		afterEach(() => {
 			sandbox.restore();
 		});
 
-		it('before:deploy:initialize should resolve', () => {
+		it('before:package:initialize should resolve', () => {
 			validateStub.returns(BbPromise.resolve());
-			return expect(awsAlias.hooks['before:deploy:initialize']()).to.eventually.be.fulfilled
+			return expect(awsAlias.hooks['before:package:initialize']()).to.eventually.be.fulfilled
 			.then(() => expect(validateStub).to.be.calledOnce);
 		});
 
-		it('after:deploy:initialize should resolve', () => {
-			configureAliasStackStub.returns(BbPromise.resolve());
-			return expect(awsAlias.hooks['after:deploy:initialize']()).to.eventually.be.fulfilled
-			.then(() => expect(configureAliasStackStub).to.be.calledOnce);
-		});
-
-		it('after:deploy:setupProviderConfiguration should resolve', () => {
-			createAliasStackStub.returns(BbPromise.resolve());
-			return expect(awsAlias.hooks['after:deploy:setupProviderConfiguration']()).to.eventually.be.fulfilled
-			.then(() => expect(createAliasStackStub).to.be.calledOnce);
-		});
-
 		it('before:deploy:deploy should resolve', () => {
+			configureAliasStackStub.returns(BbPromise.resolve());
+			return expect(awsAlias.hooks['before:deploy:deploy']()).to.eventually.be.fulfilled
+			.then(() => BbPromise.all([
+				expect(validateStub).to.be.calledOnce,
+				expect(configureAliasStackStub).to.be.calledOnce,
+			]));
+		});
+
+		it('before:aws:deploy:deploy:createStack should resolve', () => {
 			aliasStackLoadCurrentCFStackAndDependenciesStub.returns(BbPromise.resolve([]));
 			aliasRestructureStackStub.returns(BbPromise.resolve());
-			return expect(awsAlias.hooks['before:deploy:deploy']()).to.eventually.be.fulfilled
+			return expect(awsAlias.hooks['before:aws:deploy:deploy:createStack']()).to.eventually.be.fulfilled
 			.then(() => BbPromise.join(
 				expect(aliasStackLoadCurrentCFStackAndDependenciesStub).to.be.calledOnce,
 				expect(aliasRestructureStackStub).to.be.calledOnce
 			));
 		});
+
+		it('after:aws:deploy:deploy:createStack should resolve', () => {
+			createAliasStackStub.returns(BbPromise.resolve());
+			return expect(awsAlias.hooks['after:aws:deploy:deploy:createStack']()).to.eventually.be.fulfilled
+			.then(() => expect(createAliasStackStub).to.be.calledOnce);
+		});
+
+		it('after:aws:deploy:deploy:uploadArtifacts should resolve', () => {
+			setBucketNameStub.returns(BbPromise.resolve());
+			uploadAliasArtifactsStub.returns(BbPromise.resolve());
+			return expect(awsAlias.hooks['after:aws:deploy:deploy:uploadArtifacts']()).to.eventually.be.fulfilled
+			.then(() => BbPromise.join(
+				expect(setBucketNameStub).to.be.calledOnce,
+				expect(uploadAliasArtifactsStub).to.be.calledOnce
+			));
+		});
+
+		it('after:aws:deploy:deploy:updateStack should resolve', () => {
+			updateAliasStackStub.returns(BbPromise.resolve());
+			return expect(awsAlias.hooks['after:aws:deploy:deploy:updateStack']()).to.eventually.be.fulfilled
+			.then(() => expect(updateAliasStackStub).to.be.calledOnce);
+		});
+
 	});
 });
