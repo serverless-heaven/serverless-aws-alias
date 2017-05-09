@@ -26,6 +26,7 @@ describe('createAliasStack', () => {
 	let sandbox;
 	let providerRequestStub;
 	let monitorStackStub;
+	let logStub;
 
 	before(() => {
 		sandbox = sinon.sandbox.create();
@@ -45,6 +46,9 @@ describe('createAliasStack', () => {
 		awsAlias = new AWSAlias(serverless, options);
 		providerRequestStub = sandbox.stub(awsAlias._provider, 'request');
 		monitorStackStub = sandbox.stub(awsAlias, 'monitorStack');
+		logStub = sandbox.stub(serverless.cli, 'log');
+
+		logStub.returns();
 	});
 
 	afterEach(() => {
