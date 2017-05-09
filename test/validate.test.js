@@ -35,12 +35,12 @@ describe('#validate()', () => {
 		return expect(awsAlias.validate()).to.be.rejectedWith('must be >= 1.12.0');
 	});
 
-	it('should succeed Serverless version 1.12.0', () => {
+	it('should succeed with Serverless version 1.12.0', () => {
 		serverless.version = '1.12.0';
 		return expect(awsAlias.validate()).to.eventually.be.fulfilled;
 	});
 
-	it('should succeed Serverless version 1.13.0', () => {
+	it('should succeed with Serverless version 1.13.0', () => {
 		serverless.version = '1.13.0';
 		return expect(awsAlias.validate()).to.eventually.be.fulfilled;
 	});
