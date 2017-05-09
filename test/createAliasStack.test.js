@@ -74,6 +74,8 @@ describe('createAliasStack', () => {
 			providerRequestStub.returns(BbPromise.resolve(requestResult));
 			monitorStackStub.returns(BbPromise.resolve());
 
+			serverless.service.provider.compiledCloudFormationAliasCreateTemplate = {};
+
 			return expect(awsAlias.createAlias()).to.be.fulfilled
 			.then(() => BbPromise.all([
 				expect(providerRequestStub).to.have.been.calledOnce,
@@ -106,6 +108,8 @@ describe('createAliasStack', () => {
 				tag1: 'application',
 				tag2: 'component'
 			};
+
+			serverless.service.provider.compiledCloudFormationAliasCreateTemplate = {};
 
 			return expect(awsAlias.createAlias()).to.be.fulfilled
 			.then(() => BbPromise.all([
@@ -266,7 +270,7 @@ describe('createAliasStack', () => {
 			writeFileSyncStub.returns();
 
 			serverless.config.servicePath = 'path-to-service';
-			serverless.service.provider.compiledCloudFormationAliasTemplate = template;
+			serverless.service.provider.compiledCloudFormationAliasCreateTemplate = template;
 
 			return expect(awsAlias.writeAliasTemplateToDisk()).to.be.fulfilled
 			.then(() => BbPromise.all([
