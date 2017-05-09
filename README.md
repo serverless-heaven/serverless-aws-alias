@@ -32,11 +32,6 @@ hook into the deployment process.
 Additionally the new `alias` command is added to Serverless which offers some
 functionality for aliases.
 
-## Interoperability
-
-Care has to be taken when using other plugins that modify the CF output too.
-I will add configuration instructions in this section for these plugin combinations.
-
 ## Deploy the default alias
 
 The default alias (for the stage) is deployed just by doing a standard stage
@@ -226,6 +221,19 @@ the alias stack has been removed.
 The alias plugin is compatible with all standard Serverless commands and switches.
 For example, you can use `--noDeploy` and the plugin will behave accordingly.
 
+## Interoperability
+
+Care has to be taken when using other plugins that modify the CF output too.
+I will add configuration instructions in this section for these plugin combinations.
+
+### [serverless-plugin-warmup](https://github.com/FidelLimited/serverless-plugin-warmup)
+
+The warmup plugin will keep your Lambdas warm and reduce the cold start time
+effectively. When using the plugin, it must be listed **before** the alias plugin
+in the plugin list of _serverless.yml_. The warmup lambda created by the plugin
+will be aliased too, so that the warmup plugin can be configured differently
+per deployed alias.
+
 ## Test it
 
 In case you wanna test how it behaves, I provided a predefined test service in
@@ -307,6 +315,8 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 * 0.5.0-alpha1 Fixes a bug with deploying event sources introduced with 0.4.0
                Use new event model introduced in SLS 1.12. Needs SLS 1.12 or greater from now on.
+							 Add support for CW events.
+							 Set SERVERLESS_ALIAS environment variable on deployed functions.
 * 0.4.0-alpha1 APIG support fixed. Support external IAM roles. BREAKING.
 * 0.3.4-alpha1 Bugfixes. IAM policy consolitaion. Show master alias information.
 * 0.3.3-alpha1 Bugfixes. Allow manual resource overrides. Allow methods attached to APIG root resource.
