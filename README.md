@@ -32,6 +32,11 @@ hook into the deployment process.
 Additionally the new `alias` command is added to Serverless which offers some
 functionality for aliases.
 
+## Interoperability
+
+Care has to be taken when using other plugins that modify the CF output too.
+I will add configuration instructions in this section for these plugin combinations.
+
 ## Deploy the default alias
 
 The default alias (for the stage) is deployed just by doing a standard stage
@@ -300,6 +305,8 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 0.5.0-alpha1 Fixes a bug with deploying event sources introduced with 0.4.0
+               Use new event model introduced in SLS 1.12. Needs SLS 1.12 or greater from now on.
 * 0.4.0-alpha1 APIG support fixed. Support external IAM roles. BREAKING.
 * 0.3.4-alpha1 Bugfixes. IAM policy consolitaion. Show master alias information.
 * 0.3.3-alpha1 Bugfixes. Allow manual resource overrides. Allow methods attached to APIG root resource.
