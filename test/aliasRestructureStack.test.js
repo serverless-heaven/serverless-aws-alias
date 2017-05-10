@@ -55,6 +55,28 @@ describe('aliasRestructureStack', () => {
 		sandbox.restore();
 	});
 
+	describe('#aliasFinalize()', () => {
+		it('should stringify flags', () => {
+			serverless.service.provider.compiledCloudFormationAliasTemplate = {
+				Resources: {},
+				Outputs: {
+					AliasFlags: {
+						Value: {
+							flag1: true,
+							flag2: 0
+						}
+					}
+				}
+			};
+
+			return expect(awsAlias.aliasFinalize()).to.be.fulfilled
+			.then(() =>
+				expect(serverless.service.provider.compiledCloudFormationAliasTemplate.Outputs.AliasFlags.Value)
+					.to.equal('{"flag1":true,"flag2":0}')
+			);
+		});
+	});
+
 	describe('#aliasRestructureStack()', () => {
 		it('should abort if no master alias has been deployed', () => {
 			awsAlias._alias = 'myAlias';
