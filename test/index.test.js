@@ -74,6 +74,7 @@ describe('AwsAlias', () => {
 		let setBucketNameStub;
 		let uploadAliasArtifactsStub;
 		let updateAliasStackStub;
+		let collectUserResourcesStub;
 
 		before(() => {
 			sandbox = sinon.sandbox.create();
@@ -89,6 +90,7 @@ describe('AwsAlias', () => {
 			setBucketNameStub = sandbox.stub(awsAlias, 'setBucketName');
 			uploadAliasArtifactsStub = sandbox.stub(awsAlias, 'uploadAliasArtifacts');
 			updateAliasStackStub = sandbox.stub(awsAlias, 'updateAliasStack');
+			collectUserResourcesStub = sandbox.stub(awsAlias, 'collectUserResources');
 		});
 
 		afterEach(() => {
@@ -99,6 +101,12 @@ describe('AwsAlias', () => {
 			validateStub.returns(BbPromise.resolve());
 			return expect(awsAlias.hooks['before:package:initialize']()).to.eventually.be.fulfilled
 			.then(() => expect(validateStub).to.be.calledOnce);
+		});
+
+		it('before:aws:package:finalize:mergeCustomProviderResources should resolve', () => {
+			validateStub.returns(BbPromise.resolve());
+			return expect(awsAlias.hooks['before:aws:package:finalize:mergeCustomProviderResources']()).to.eventually.be.fulfilled
+			.then(() => expect(collectUserResourcesStub).to.be.calledOnce);
 		});
 
 		it('before:deploy:deploy should resolve', () => {
