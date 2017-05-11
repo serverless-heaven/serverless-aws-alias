@@ -310,6 +310,7 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 0.5.1-alpha1 Use separate Lambda roles per alias
 * 0.5.0-alpha1 Fixes a bug with deploying event sources introduced with 0.4.0
                Use new event model introduced in SLS 1.12. Needs SLS 1.12 or greater from now on.
 							 Add support for CW events.
