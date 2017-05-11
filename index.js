@@ -15,6 +15,7 @@ const BbPromise = require('bluebird')
 		, stackInformation = require('./lib/stackInformation')
 		, listAliases = require('./lib/listAliases')
 		, removeAlias = require('./lib/removeAlias')
+		, collectUserResources = require('./lib/collectUserResources')
 		, uploadAliasArtifacts = require('./lib/uploadAliasArtifacts');
 
 class AwsAlias {
@@ -51,6 +52,7 @@ class AwsAlias {
 		_.assign(
 			this,
 			validate,
+			collectUserResources,
 			configureAliasStack,
 			createAliasStack,
 			updateAliasStack,
@@ -91,6 +93,9 @@ class AwsAlias {
 		this._hooks = {
 			'before:package:initialize': () => BbPromise.bind(this)
 				.then(this.validate),
+
+			'before:aws:package:finalize:mergeCustomProviderResources': () => BbPromise.bind(this)
+				.then(this.collectUserResources),
 
 			'before:deploy:deploy': () => BbPromise.bind(this)
 				.then(this.validate)

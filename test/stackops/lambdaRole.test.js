@@ -4,7 +4,6 @@
  */
 
 const getInstalledPath = require('get-installed-path');
-const BbPromise = require('bluebird');
 const chai = require('chai');
 const sinon = require('sinon');
 const AWSAlias = require('../../index');
