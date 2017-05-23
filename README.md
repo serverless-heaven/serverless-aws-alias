@@ -196,6 +196,13 @@ alias points to.
 
 Given an alias with `--alias=XXXX` info will show information for the alias.
 
+## Serverless logs integration
+
+The plugin integrates with the Serverless logs command (all standard options will
+work). Additionally, given an alias with `--alias=XXXX`, logs will show the logs
+for the selected alias. Without the alias option it will show the master alias
+(aka. stage alias).
+
 ## The alias command
 
 ## Subcommands
