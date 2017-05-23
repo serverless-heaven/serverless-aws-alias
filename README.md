@@ -84,14 +84,6 @@ aliased lambda is the origin.
 Any other use with the further exception of lambda event subscriptions (see below)
 is strongly discouraged.
 
-## Log groups (not yet finished)
-
-Each alias has its own log group. From my experience with Serverless 0.5 where
-all aliased versions put their logs into the same group, this should be much
-cleaner and the removal of an alias will also remove all logs associated to the alias.
-The log group is named `/serverless/<alias stack name>`. So you can clearly see
-what is deployed through Serverless and what by other means.
-
 ## Resources
 
 Resources are deployed per alias. So you can create new resources without destroying
@@ -201,6 +193,8 @@ that is printed with the list of deployed aliases.
 In verbose mode (`serverless info -v`) it will additionally print the names
 of the lambda functions deployed to each stage with the version numbers the
 alias points to.
+
+Given an alias with `--alias=XXXX` info will show information for the alias.
 
 ## The alias command
 
