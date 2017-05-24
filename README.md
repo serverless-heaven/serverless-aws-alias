@@ -252,6 +252,13 @@ If work is ceased on a branch and it is deleted, the alias can just be removed
 and on the next deployment of any other alias, the obsoleted functions will
 disappear automatically.
 
+### Sample project
+
+A preconfigured sample project can be found [here](https://github.com/HyperBrain/serverless-aws-alias-example).
+It lets you start testing right away. See the project's README for instructions.
+The sample project will evolve over time - when new features or changes are
+integrated into the plugin.
+
 ## Uninstall
 
 If you are not happy with the plugin or just do not like me, you can easily get rid
