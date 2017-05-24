@@ -276,6 +276,8 @@ contains its entire configuration (VPC settings, environment, etc.)
 ## For developers
 ### Lifecycle events
 
+_currently the exposed hooks are disabled after the change to the new SLS lifecycle model_
+
 The plugin adds the following lifecycle events that can be hooked by other plugins:
 
 * alias:deploy:uploadArtifacts
@@ -311,6 +313,7 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.0.0        Support "serverless logs" with aliases. First non-alpha!
 * 0.5.1-alpha1 Use separate Lambda roles per alias
 * 0.5.0-alpha1 Fixes a bug with deploying event sources introduced with 0.4.0
                Use new event model introduced in SLS 1.12. Needs SLS 1.12 or greater from now on.
