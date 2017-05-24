@@ -15,6 +15,7 @@ const BbPromise = require('bluebird')
 		, stackInformation = require('./lib/stackInformation')
 		, listAliases = require('./lib/listAliases')
 		, removeAlias = require('./lib/removeAlias')
+		, logs = require('./lib/logs')
 		, collectUserResources = require('./lib/collectUserResources')
 		, uploadAliasArtifacts = require('./lib/uploadAliasArtifacts');
 
@@ -57,6 +58,7 @@ class AwsAlias {
 			createAliasStack,
 			updateAliasStack,
 			listAliases,
+			logs,
 			removeAlias,
 			aliasRestructureStack,
 			stackInformation,
@@ -117,6 +119,15 @@ class AwsAlias {
 
 			'after:info:info': () => BbPromise.bind(this)
 				.then(this.listAliases),
+
+			// Override the logs command - must be, because the $LATEST filter
+			// in the original logs command is not easy to change without hacks.
+			'before:logs:logs': () => BbPromise.bind(this)
+				.then(this.validate)
+				.then(this.logsValidate)
+				.then(this.logsGetLogStreams)
+				.then(this.logsShowLogs)
+				.then(() => process.exit(0)),	// Bail out to prevent the roiginal logs to be started!
 
 			'alias:remove:remove': () => BbPromise.bind(this)
 				.then(this.validate)
