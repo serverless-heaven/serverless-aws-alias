@@ -65,8 +65,12 @@ as name.
 The created API Gateway stage has the stage variables SERVERLESS_STAGE and
 SERVERLESS_ALIAS set to the corresponding values.
 
-Upcoming: There will be a configuration possibility to configure the APIG
-stage parameters separately soon.
+If you want to test your APIG endpoints in the AWS ApiGateway console, you have
+to set the SERVERLESS_ALIAS stage variable to the alias that will be used for the
+Lambda invocation. This will call the aliased function version.
+
+Deployed stages have the alias stage variable set fixed, so a deployed alias stage is
+hard-wired to the aliased Lambda versions.
 
 ## Reference the current alias in your service
 
