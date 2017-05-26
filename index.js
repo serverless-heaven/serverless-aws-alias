@@ -122,18 +122,22 @@ class AwsAlias {
 
 			// Override the logs command - must be, because the $LATEST filter
 			// in the original logs command is not easy to change without hacks.
-			'before:logs:logs': () => BbPromise.bind(this)
+			'logs:logs': () => BbPromise.bind(this)
 				.then(this.validate)
 				.then(this.logsValidate)
 				.then(this.logsGetLogStreams)
-				.then(this.logsShowLogs)
-				.then(() => process.exit(0)),	// Bail out to prevent the roiginal logs to be started!
+				.then(this.logsShowLogs),
 
 			'alias:remove:remove': () => BbPromise.bind(this)
 				.then(this.validate)
 				.then(this.aliasStackLoadCurrentCFStackAndDependencies)
 				.spread(this.removeAlias)
 		};
+
+		// Patch hooks to override our event replacements
+		const pluginManager = this.serverless.pluginManager;
+		const logHooks = pluginManager.hooks['logs:logs'];
+		_.pullAllWith(logHooks, [ 'AwsLogs' ], (a, b) => a.pluginName === b);
 	}
 
   /**
