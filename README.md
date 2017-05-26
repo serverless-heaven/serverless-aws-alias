@@ -324,6 +324,11 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.1.0
+  * Use stage variable in APIG [#40](https://github.com/HyperBrain/serverless-aws-alias/issues/40)
+  * Fix tail logging [#42](https://github.com/HyperBrain/serverless-aws-alias/issues/42)
+
+
 * 1.0.0        Support "serverless logs" with aliases. First non-alpha!
 * 0.5.1-alpha1 Use separate Lambda roles per alias
 * 0.5.0-alpha1 Fixes a bug with deploying event sources introduced with 0.4.0
