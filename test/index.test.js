@@ -33,6 +33,13 @@ describe('AwsAlias', () => {
 
 	describe('constructor', () => {
 		it('should initialize the plugin without options', () => {
+			const awsAlias = new AwsAlias(serverless);
+
+			expect(awsAlias).to.have.property('_serverless', serverless);
+			expect(awsAlias).to.have.property('_options').to.deep.equal({});
+		});
+
+		it('should initialize the plugin with empty options', () => {
 			const awsAlias = new AwsAlias(serverless, {});
 
 			expect(awsAlias).to.have.property('_serverless', serverless);
@@ -50,11 +57,14 @@ describe('AwsAlias', () => {
 	it('should expose standard properties', () => {
 		const awsAlias = new AwsAlias(serverless, options);
 
+		awsAlias._stackName = 'myStack';
+
 		expect(awsAlias).to.have.property('serverless', serverless);
 		expect(awsAlias).to.have.property('options').to.deep.equal(options);
 		expect(awsAlias).to.have.property('commands', awsAlias._commands);
 		expect(awsAlias).to.have.property('hooks', awsAlias._hooks);
 		expect(awsAlias).to.have.property('provider', awsAlias._provider);
+		expect(awsAlias).to.have.property('stackName', 'myStack');
 	});
 
 	describe('hook', () => {
