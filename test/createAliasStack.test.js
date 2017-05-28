@@ -39,7 +39,7 @@ describe('createAliasStack', () => {
 			stage: 'myStage',
 			region: 'us-east-1',
 		};
-		serverless.setProvider('aws', new AwsProvider(serverless));
+		serverless.setProvider('aws', new AwsProvider(serverless, options));
 		serverless.cli = new serverless.classes.CLI(serverless);
 		serverless.service.service = 'testService';
 		serverless.service.provider.compiledCloudFormationAliasTemplate = {};
@@ -58,7 +58,7 @@ describe('createAliasStack', () => {
 	describe('#createAlias()', () => {
 		it('Should call CF with correct default parameters', () => {
 			const expectedCFData = {
-				StackName: 'testService-dev-myAlias',
+				StackName: 'testService-myStage-myAlias',
 				Capabilities: ['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM'],
 				OnFailure: 'DELETE',
 				Parameters: [],
@@ -76,7 +76,8 @@ describe('createAliasStack', () => {
 
 			serverless.service.provider.compiledCloudFormationAliasCreateTemplate = {};
 
-			return expect(awsAlias.createAlias()).to.be.fulfilled
+			return expect(awsAlias.validate()).to.be.fulfilled
+			.then(() => expect(awsAlias.createAlias()).to.be.fulfilled)
 			.then(() => BbPromise.all([
 				expect(providerRequestStub).to.have.been.calledOnce,
 				expect(monitorStackStub).to.have.been.calledOnce,
@@ -89,7 +90,7 @@ describe('createAliasStack', () => {
 
 		it('should set stack tags', () => {
 			const expectedCFData = {
-				StackName: 'testService-dev-myAlias',
+				StackName: 'testService-myStage-myAlias',
 				Capabilities: ['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM'],
 				OnFailure: 'DELETE',
 				Parameters: [],
@@ -111,7 +112,8 @@ describe('createAliasStack', () => {
 
 			serverless.service.provider.compiledCloudFormationAliasCreateTemplate = {};
 
-			return expect(awsAlias.createAlias()).to.be.fulfilled
+			return expect(awsAlias.validate()).to.be.fulfilled
+			.then(() => expect(awsAlias.createAlias()).to.be.fulfilled)
 			.then(() => BbPromise.all([
 				expect(providerRequestStub).to.have.been.calledOnce,
 				expect(providerRequestStub).to.have.been

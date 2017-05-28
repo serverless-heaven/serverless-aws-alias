@@ -28,17 +28,22 @@ describe('AwsAlias', () => {
 			region: 'us-east-1',
 		};
 		serverless.service.service = 'myService';
-		serverless.setProvider('aws', new AwsProvider(serverless));
+		serverless.setProvider('aws', new AwsProvider(serverless, options));
 	});
 
 	describe('constructor', () => {
 		it('should initialize the plugin without options', () => {
+			const awsAlias = new AwsAlias(serverless);
+
+			expect(awsAlias).to.have.property('_serverless', serverless);
+			expect(awsAlias).to.have.property('_options').to.deep.equal({});
+		});
+
+		it('should initialize the plugin with empty options', () => {
 			const awsAlias = new AwsAlias(serverless, {});
 
 			expect(awsAlias).to.have.property('_serverless', serverless);
 			expect(awsAlias).to.have.property('_options').to.deep.equal({});
-			expect(awsAlias).to.have.property('_stage', 'dev');
-			expect(awsAlias).to.have.property('_alias', 'dev');
 		});
 
 		it('should initialize the plugin with options', () => {
@@ -46,21 +51,20 @@ describe('AwsAlias', () => {
 
 			expect(awsAlias).to.have.property('_serverless', serverless);
 			expect(awsAlias).to.have.property('_options').to.deep.equal(options);
-			expect(awsAlias).to.have.property('_stage', 'myStage');
-			expect(awsAlias).to.have.property('_alias', 'myStage');
 		});
 	});
 
 	it('should expose standard properties', () => {
 		const awsAlias = new AwsAlias(serverless, options);
 
+		awsAlias._stackName = 'myStack';
+
 		expect(awsAlias).to.have.property('serverless', serverless);
 		expect(awsAlias).to.have.property('options').to.deep.equal(options);
-		expect(awsAlias).to.have.property('stackName', 'myService-dev');
-		expect(awsAlias).to.have.deep.property('serverless.service.provider.alias', 'myStage');
 		expect(awsAlias).to.have.property('commands', awsAlias._commands);
 		expect(awsAlias).to.have.property('hooks', awsAlias._hooks);
 		expect(awsAlias).to.have.property('provider', awsAlias._provider);
+		expect(awsAlias).to.have.property('stackName', 'myStack');
 	});
 
 	describe('hook', () => {

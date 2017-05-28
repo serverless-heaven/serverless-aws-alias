@@ -63,7 +63,8 @@ describe('configureAliasStack', () => {
 			serverless.service.provider.compiledCloudFormationTemplate = require('./data/sls-stack-1.json');
 			const cfTemplate = serverless.service.provider.compiledCloudFormationTemplate;
 
-			return expect(awsAlias.configureAliasStack()).to.be.fulfilled
+			return expect(awsAlias.validate()).to.be.fulfilled
+			.then(() => expect(awsAlias.configureAliasStack()).to.be.fulfilled)
 			.then(() => BbPromise.all([
 				expect(cfTemplate).to.have.deep.property('Outputs.ServerlessAliasReference.Value', 'REFERENCE'),
 				expect(cfTemplate).to.have.deep.property('Outputs.ServerlessAliasReference.Export.Name', 'testService-myStage-ServerlessAliasReference'),
