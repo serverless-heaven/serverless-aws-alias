@@ -23,7 +23,7 @@ class AwsAlias {
 
 	constructor(serverless, options) {
 		this._serverless = serverless;
-		this._options = options;
+		this._options = options || {};
 		this._provider = this._serverless.getProvider('aws');
 
 		/**

@@ -4,6 +4,7 @@
  */
 
 const getInstalledPath = require('get-installed-path');
+const BbPromise = require('bluebird');
 const chai = require('chai');
 const AWSAlias = require('../index');
 
@@ -25,7 +26,8 @@ describe('#validate()', () => {
 			stage: 'myStage',
 			region: 'us-east-1',
 		};
-		serverless.setProvider('aws', new AwsProvider(serverless));
+		serverless.service.service = 'myService';
+		serverless.setProvider('aws', new AwsProvider(serverless, options));
 		serverless.cli = new serverless.classes.CLI(serverless);
 		awsAlias = new AWSAlias(serverless, options);
 	});
@@ -43,6 +45,15 @@ describe('#validate()', () => {
 	it('should succeed with Serverless version 1.13.0', () => {
 		serverless.version = '1.13.0';
 		return expect(awsAlias.validate()).to.eventually.be.fulfilled;
+	});
+
+	it('should initialize the plugin with options', () => {
+		return expect(awsAlias.validate()).to.eventually.be.fulfilled
+		.then(() => BbPromise.all([
+			expect(awsAlias).to.have.property('_stage', 'myStage'),
+			expect(awsAlias).to.have.property('_alias', 'myStage'),
+			expect(awsAlias).to.have.property('_stackName', 'myService-myStage'),
+		]));
 	});
 
 	it('should succeed', () => {
