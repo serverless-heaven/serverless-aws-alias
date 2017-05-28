@@ -25,12 +25,6 @@ class AwsAlias {
 		this._serverless = serverless;
 		this._options = options;
 		this._provider = this._serverless.getProvider('aws');
-		this._stage = this._options.stage || this._serverless.service.provider.stage;
-		this._alias = this._options.alias || this._stage;
-		this._stackName = this._provider.naming.getStackName();
-
-		// Make alias available as ${self:provider.alias}
-		this._serverless.service.provider.alias = this._alias;
 
 		/**
 		 * Load stack helpers from Serverless installation.
@@ -118,6 +112,7 @@ class AwsAlias {
 				.then(this.updateAliasStack),
 
 			'after:info:info': () => BbPromise.bind(this)
+				.then(this.validate)
 				.then(this.listAliases),
 
 			// Override the logs command - must be, because the $LATEST filter
