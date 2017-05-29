@@ -71,6 +71,7 @@ describe('SNS Events', () => {
 		});
 
 		it('should replace function with alias reference', () => {
+			serverless.service.provider.compiledCloudFormationTemplate = require('../data/sns-stack.json');
 			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = require('../data/alias-stack-1.json');
 			return expect(awsAlias.aliasHandleSNSEvents({}, [], {})).to.be.fulfilled
 			.then(() => BbPromise.all([
