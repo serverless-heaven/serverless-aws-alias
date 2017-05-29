@@ -115,6 +115,23 @@ automatically.
 Event subscriptions that are defined for a lambda function will be deployed per
 alias, i.e. the event will trigger the correct deployed aliased function.
 
+### SNS
+
+Subscriptions to SNS topics can be implicitly defined by adding an `sns` event to
+any existing lambda function definition. Serverless will create the topic for you
+and add a subscription to the deployed function.
+
+With the alias plugin the subscription will be per alias. Additionally the created
+topic is renamed and the alias name is added (e.g. myTopic-myAlias). This is done
+because SNS topics are independent per stage. Imagine you want to introduce a new
+topic or change the data/payload format of an existing one. Just attaching different
+aliases to one central topic would eventually break the system, as functions from
+different stages will receive the new data format. The topic-per-alias approach
+effectively solves the problem.
+
+If you want to refer to the topic programmatically, you just can add `-${process.env.SERVERLESS_ALIAS}`
+to the base topic name.
+
 ### Use with global resources
 
 Event subscriptions can reference resources that are available throughout all

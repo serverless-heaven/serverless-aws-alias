@@ -91,6 +91,7 @@ describe('aliasRestructureStack', () => {
 			const aliasHandleApiGatewaySpy = sandbox.spy(awsAlias, 'aliasHandleApiGateway');
 			const aliasHandleEventsSpy = sandbox.spy(awsAlias, 'aliasHandleEvents');
 			const aliasHandleCWEventsSpy = sandbox.spy(awsAlias, 'aliasHandleCWEvents');
+			const aliasHandleSNSEventsSpy = sandbox.spy(awsAlias, 'aliasHandleSNSEvents');
 			const aliasFinalizeSpy = sandbox.spy(awsAlias, 'aliasFinalize');
 
 			const currentTemplate = require('./data/sls-stack-2.json');
@@ -107,6 +108,7 @@ describe('aliasRestructureStack', () => {
 				expect(aliasHandleApiGatewaySpy).to.have.been.calledWithExactly(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate),
 				expect(aliasHandleEventsSpy).to.have.been.calledWithExactly(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate),
 				expect(aliasHandleCWEventsSpy).to.have.been.calledWithExactly(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate),
+				expect(aliasHandleSNSEventsSpy).to.have.been.calledWithExactly(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate),
 				expect(aliasFinalizeSpy).to.have.been.calledWithExactly(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate),
 			]));
 		});
