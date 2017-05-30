@@ -304,7 +304,7 @@ contains its entire configuration (VPC settings, environment, etc.)
 ## For developers
 ### Lifecycle events
 
-_currently the exposed hooks are disabled after the change to the new SLS lifecycle model_
+_currently the exposed hooks are not available after the change to the new SLS lifecycle model_
 
 The plugin adds the following lifecycle events that can be hooked by other plugins:
 
@@ -340,6 +340,11 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 	naturally. It might be possible to introduce some kind of per alias policy.
 
 ## Version history
+
+* 1.2.0
+  * Fix issue when stage is specified as Serverless variable [#45](https://github.com/HyperBrain/serverless-aws-alias/issues/45)
+  * Add support for SNS Lambda subscriptions [#43](https://github.com/HyperBrain/serverless-aws-alias/issues/43)
+  * Add support for custom authorizers [#22](https://github.com/HyperBrain/serverless-aws-alias/issues/22)
 
 * 1.1.0
   * Use stage variable in APIG [#40](https://github.com/HyperBrain/serverless-aws-alias/issues/40)
