@@ -57,12 +57,46 @@ describe('lambdaRole', () => {
 		let stack;
 
 		beforeEach(() => {
-			stack = _.clone(require('../data/sls-stack-1.json'));
-		})
+			stack = _.cloneDeep(require('../data/sls-stack-1.json'));
+		});
 
 		it('should succeed with standard template', () => {
 			serverless.service.provider.compiledCloudFormationTemplate = stack;
 			return expect(awsAlias.aliasHandleLambdaRole({}, [], {})).to.be.fulfilled;
+		});
+
+		it('should remove old global IAM role when there are no references', () => {
+			const currentTemplate = {
+				Resources: {
+					IamRoleLambdaExecution: {}
+				},
+				Outputs: {}
+			};
+			serverless.service.provider.compiledCloudFormationTemplate = stack;
+			return expect(awsAlias.aliasHandleLambdaRole(currentTemplate, [], {})).to.be.fulfilled
+			.then(() => expect(currentTemplate).to.not.have.a.property('IamRoleLambdaExecution'));
+		});
+
+		it('should retain existing alias roles', () => {
+			const aliasTemplates = [{
+				Resources: {},
+				Outputs: {
+					ServerlessAliasName: {
+						Description: 'The current alias',
+						Value: 'testAlias'
+					}
+				}
+			}];
+			const currentTemplate = {
+				Resources: {
+					IamRoleLambdaExecution: {},
+					IamRoleLambdaExecutiontestAlias: {}
+				},
+				Outputs: {}
+			};
+			const stackTemplate = serverless.service.provider.compiledCloudFormationTemplate = stack;
+			return expect(awsAlias.aliasHandleLambdaRole(currentTemplate, aliasTemplates, {})).to.be.fulfilled
+			.then(() => expect(stackTemplate).to.have.a.deep.property('Resources.IamRoleLambdaExecutiontestAlias'));
 		});
 
 	});
