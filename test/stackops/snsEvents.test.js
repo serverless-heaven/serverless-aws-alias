@@ -4,6 +4,7 @@
  */
 
 const getInstalledPath = require('get-installed-path');
+const _ = require('lodash');
 const BbPromise = require('bluebird');
 const chai = require('chai');
 const sinon = require('sinon');
@@ -52,15 +53,25 @@ describe('SNS Events', () => {
 	});
 
 	describe('#aliasHandleSNSEvents()', () => {
+		let stack1;
+		let aliasStack1;
+		let snsStack1;
+
+		beforeEach(() => {
+			stack1 = _.cloneDeep(require('../data/sls-stack-1.json'));
+			aliasStack1 = _.cloneDeep(require('../data/alias-stack-1.json'));
+			snsStack1 = _.cloneDeep(require('../data/sns-stack.json'));
+		});
+
 		it('should succeed with standard template', () => {
-			serverless.service.provider.compiledCloudFormationTemplate = require('../data/sls-stack-1.json');
-			serverless.service.provider.compiledCloudFormationAliasTemplate = require('../data/alias-stack-1.json');
+			serverless.service.provider.compiledCloudFormationTemplate = stack1;
+			serverless.service.provider.compiledCloudFormationAliasTemplate = aliasStack1;
 			return expect(awsAlias.aliasHandleSNSEvents({}, [], {})).to.be.fulfilled;
 		});
 
 		it('should move resources to alias stack', () => {
-			const snsStack = serverless.service.provider.compiledCloudFormationTemplate = require('../data/sns-stack.json');
-			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = require('../data/alias-stack-1.json');
+			const snsStack = serverless.service.provider.compiledCloudFormationTemplate = snsStack1;
+			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasStack1;
 			return expect(awsAlias.aliasHandleSNSEvents({}, [], {})).to.be.fulfilled
 			.then(() => BbPromise.all([
 				expect(snsStack).to.not.have.property('SNSTopicSlstestprojecttopic'),
@@ -71,8 +82,8 @@ describe('SNS Events', () => {
 		});
 
 		it('should replace function with alias reference', () => {
-			serverless.service.provider.compiledCloudFormationTemplate = require('../data/sns-stack.json');
-			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = require('../data/alias-stack-1.json');
+			serverless.service.provider.compiledCloudFormationTemplate = snsStack1;
+			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasStack1;
 			return expect(awsAlias.aliasHandleSNSEvents({}, [], {})).to.be.fulfilled
 			.then(() => BbPromise.all([
 				expect(aliasStack).to.not.have.property('SNSTopicSlstestprojecttopic')

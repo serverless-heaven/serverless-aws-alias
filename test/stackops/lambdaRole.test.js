@@ -4,6 +4,7 @@
  */
 
 const getInstalledPath = require('get-installed-path');
+const _ = require('lodash');
 const chai = require('chai');
 const sinon = require('sinon');
 const AWSAlias = require('../../index');
@@ -34,8 +35,8 @@ describe('lambdaRole', () => {
 			stage: 'myStage',
 			region: 'us-east-1',
 		};
-		serverless = new Serverless(options);
-		serverless.setProvider('aws', new AwsProvider(serverless));
+		serverless = new Serverless();
+		serverless.setProvider('aws', new AwsProvider(serverless, options));
 		serverless.cli = new serverless.classes.CLI(serverless);
 		serverless.service.service = 'testService';
 		serverless.service.provider.compiledCloudFormationAliasTemplate = {};
@@ -44,6 +45,8 @@ describe('lambdaRole', () => {
 		// Disable logging
 		logStub = sandbox.stub(serverless.cli, 'log');
 		logStub.returns();
+
+		return awsAlias.validate();
 	});
 
 	afterEach(() => {
@@ -51,8 +54,14 @@ describe('lambdaRole', () => {
 	});
 
 	describe('#aliasHandleLambdaRole()', () => {
+		let stack;
+
+		beforeEach(() => {
+			stack = _.clone(require('../data/sls-stack-1.json'));
+		})
+
 		it('should succeed with standard template', () => {
-			serverless.service.provider.compiledCloudFormationTemplate = require('../data/sls-stack-1.json');
+			serverless.service.provider.compiledCloudFormationTemplate = stack;
 			return expect(awsAlias.aliasHandleLambdaRole({}, [], {})).to.be.fulfilled;
 		});
 

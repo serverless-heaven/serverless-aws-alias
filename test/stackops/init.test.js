@@ -4,6 +4,7 @@
  */
 
 const getInstalledPath = require('get-installed-path');
+const _ = require('lodash');
 const BbPromise = require('bluebird');
 const chai = require('chai');
 const sinon = require('sinon');
@@ -53,8 +54,8 @@ describe('SNS Events', () => {
 
 	describe('#aliasInit()', () => {
 		it('should set alias flags', () => {
-			serverless.service.provider.compiledCloudFormationTemplate = require('../data/sls-stack-1.json');
-			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = require('../data/alias-stack-1.json');
+			serverless.service.provider.compiledCloudFormationTemplate = _.cloneDeep(require('../data/sls-stack-1.json'));
+			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = _.cloneDeep(require('../data/alias-stack-1.json'));
 			return expect(awsAlias.aliasInit({}, [], {})).to.be.fulfilled
 			.then(() => BbPromise.all([
 				expect(aliasStack).to.have.property('Outputs')
