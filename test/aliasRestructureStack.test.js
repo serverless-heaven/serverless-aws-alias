@@ -4,6 +4,7 @@
  */
 
 const getInstalledPath = require('get-installed-path');
+const _ = require('lodash');
 const BbPromise = require('bluebird');
 const chai = require('chai');
 const sinon = require('sinon');
@@ -36,14 +37,14 @@ describe('aliasRestructureStack', () => {
 			stage: 'myStage',
 			region: 'us-east-1',
 		};
-		serverless.setProvider('aws', new AwsProvider(serverless));
+		serverless.setProvider('aws', new AwsProvider(serverless, options));
 		serverless.cli = new serverless.classes.CLI(serverless);
 		serverless.service.service = 'testService';
 		serverless.service.provider.compiledCloudFormationAliasTemplate = {
 			Resources: {},
 			Outputs: {}
 		};
-		serverless.service.provider.compiledCloudFormationTemplate = require('./data/sls-stack-1.json');
+		serverless.service.provider.compiledCloudFormationTemplate = _.cloneDeep(require('./data/sls-stack-1.json'));
 		awsAlias = new AWSAlias(serverless, options);
 
 		// Disable logging
@@ -94,8 +95,8 @@ describe('aliasRestructureStack', () => {
 			const aliasHandleSNSEventsSpy = sandbox.spy(awsAlias, 'aliasHandleSNSEvents');
 			const aliasFinalizeSpy = sandbox.spy(awsAlias, 'aliasFinalize');
 
-			const currentTemplate = require('./data/sls-stack-2.json');
-			const aliasTemplate = require('./data/alias-stack-1.json');
+			const currentTemplate = _.cloneDeep(require('./data/sls-stack-2.json'));
+			const aliasTemplate = _.cloneDeep(require('./data/alias-stack-1.json'));
 			const currentAliasStackTemplate = {};
 
 			return expect(awsAlias.aliasRestructureStack(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate))

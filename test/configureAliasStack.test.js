@@ -4,6 +4,7 @@
  */
 
 const getInstalledPath = require('get-installed-path');
+const _ = require('lodash');
 const BbPromise = require('bluebird');
 const chai = require('chai');
 const sinon = require('sinon');
@@ -53,14 +54,16 @@ describe('configureAliasStack', () => {
 
 	describe('#configureAliasStack()', () => {
 		let readFileSyncStub;
+		let stack1;
 
 		beforeEach(() => {
 			readFileSyncStub = sandbox.stub(serverless.utils, 'readFileSync');
+			stack1 = _.cloneDeep(require('./data/sls-stack-1.json'));
 		});
 
 		it('should set alias reference and properties to CF templates', () => {
 			readFileSyncStub.returns(require('../lib/alias-cloudformation-template.json'));
-			serverless.service.provider.compiledCloudFormationTemplate = require('./data/sls-stack-1.json');
+			serverless.service.provider.compiledCloudFormationTemplate = stack1;
 			const cfTemplate = serverless.service.provider.compiledCloudFormationTemplate;
 
 			return expect(awsAlias.validate()).to.be.fulfilled
