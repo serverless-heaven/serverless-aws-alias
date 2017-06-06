@@ -96,7 +96,7 @@ describe('API Gateway', () => {
 											"Arn"
 										]
 									},
-									":myAlias",
+									":${stageVariables.SERVERLESS_ALIAS}",
 									"/invocations"
 								]
 							]
