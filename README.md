@@ -167,6 +167,10 @@ existing resource.
 
 ### Use with per alias resources
 
+**Currently this feature is not available. The Serverless framework does not
+support variable substitution in property names (see [#49](https://github.com/HyperBrain/serverless-aws-alias/issues/49)).
+As soon as this has been implemented there, this note will be removed.**
+
 There might be cases where you want to test with your private resources first,
 before you deploy changes to the master alias. Or you just want to create separate
 resources and event subscriptions per alias.
