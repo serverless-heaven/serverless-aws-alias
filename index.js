@@ -27,6 +27,15 @@ class AwsAlias {
 		this._provider = this._serverless.getProvider('aws');
 
 		/**
+		 * Set preliminary stage and alias. This is needed to enable the injection
+		 * of the stage into the system variables. The values are overwritten by
+		 * validate with their actually evaluated and substituted values.
+		 */
+		this._stage = this._provider.getStage();
+		this._alias = this._options.alias || this._stage;
+		this._serverless.service.provider.alias = this._alias;
+
+		/**
 		 * Load stack helpers from Serverless installation.
 		 */
 		const monitorStack = require(
