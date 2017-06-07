@@ -345,6 +345,11 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.2.1
+  * Fix issue when using a Cognito User Pools authorizer [#51](https://github.com/HyperBrain/serverless-aws-alias/issues/51)
+  * IAM roles of removed aliases are not deleted [#50](https://github.com/HyperBrain/serverless-aws-alias/issues/50)
+  * Added note to README to state that per-alias resources do not work until fixed/added in Serverless
+
 * 1.2.0
   * Fix issue when stage is specified as Serverless variable [#45](https://github.com/HyperBrain/serverless-aws-alias/issues/45)
   * Add support for SNS Lambda subscriptions [#43](https://github.com/HyperBrain/serverless-aws-alias/issues/43)
