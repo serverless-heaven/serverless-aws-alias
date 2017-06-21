@@ -124,6 +124,13 @@ class AwsAlias {
 				.then(this.validate)
 				.then(this.listAliases),
 
+			'before:remove:remove': () => {
+				if (!this._validated) {
+					throw new this._serverless.classes.Error(`Use "serverless alias remove --alias=${this._stage}" to remove the service.`);
+				}
+				return BbPromise.resolve();
+			},
+
 			// Override the logs command - must be, because the $LATEST filter
 			// in the original logs command is not easy to change without hacks.
 			'logs:logs': () => BbPromise.bind(this)
