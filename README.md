@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/HyperBrain/serverless-aws-alias.svg?branch=master)](https://travis-ci.org/HyperBrain/serverless-aws-alias)
 [![Coverage Status](https://coveralls.io/repos/github/HyperBrain/serverless-aws-alias/badge.svg?branch=master)](https://coveralls.io/github/HyperBrain/serverless-aws-alias?branch=master)
 [![npm version](https://badge.fury.io/js/serverless-aws-alias.svg)](https://badge.fury.io/js/serverless-aws-alias)
+[![npm](https://img.shields.io/npm/dt/serverless-aws-alias.svg)](https://www.npmjs.com/package/serverless-aws-alias)
 
 # Serverless AWS alias plugin
 
@@ -46,6 +47,25 @@ with the alias name as option value.
 
 Example:
 `serverless deploy --alias myAlias`
+
+## Remove an alias
+
+See the `alias remove` command below.
+
+## Remove a service
+
+To remove a complete service, all deployed user aliases have to be removed first,
+using the `alias remove` command.
+
+To finally remove the whole service (same outcome as `serverless remove`), you have
+to remove the master (stage) alias with `serverless alias remove --alias=MY_STAGE_NAME`.
+
+This will trigger a removal of the master alias CF stack followed by a removal of
+the service stack. After the stacks have been removed, there should be no remains
+of the service.
+
+The plugin will print reasonable error messages if you miss something so that you're
+guided through the removal.
 
 ## Aliases and API Gateway
 

@@ -1,0 +1,205 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Alias stack for sls-test-project-dev (myAlias)",
+  "Resources": {
+    "ServerlessAliasLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/serverless/sls-test-project-dev-myAlias",
+        "RetentionInDays": 7
+      }
+    },
+    "Testfct1Alias": {
+      "Type": "AWS::Lambda::Alias",
+      "Properties": {
+        "Description": "Echo function echoes alias",
+        "FunctionName": {
+          "Fn::ImportValue": "sls-test-project-dev-Testfct1-LambdaFunctionArn"
+        },
+        "FunctionVersion": {
+          "Fn::GetAtt": [
+            "Testfct1LambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU",
+            "Version"
+          ]
+        },
+        "Name": "myAlias"
+      },
+      "DependsOn": [
+        "Testfct1LambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU"
+      ]
+    },
+    "WarmUpPluginAlias": {
+      "Type": "AWS::Lambda::Alias",
+      "Properties": {
+        "Description": "Serverless WarmUP Plugin",
+        "FunctionName": {
+          "Fn::ImportValue": "sls-test-project-dev-WarmUpPlugin-LambdaFunctionArn"
+        },
+        "FunctionVersion": {
+          "Fn::GetAtt": [
+            "WarmUpPluginLambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU",
+            "Version"
+          ]
+        },
+        "Name": "myAlias"
+      },
+      "DependsOn": [
+        "WarmUpPluginLambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU"
+      ]
+    },
+    "Testfct1LambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "FunctionName": {
+          "Fn::ImportValue": "sls-test-project-dev-Testfct1-LambdaFunctionArn"
+        },
+        "CodeSha256": "Wh5jTkiTR67+V05RPWQIlzPI25WiPbdHDYNgbtAMneU=",
+        "Description": "Echo function echoes alias"
+      }
+    },
+    "WarmUpPluginLambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "FunctionName": {
+          "Fn::ImportValue": "sls-test-project-dev-WarmUpPlugin-LambdaFunctionArn"
+        },
+        "CodeSha256": "Wh5jTkiTR67+V05RPWQIlzPI25WiPbdHDYNgbtAMneU=",
+        "Description": "Serverless WarmUP Plugin"
+      }
+    },
+    "ApiGatewayDeployment1494367071211": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Fn::ImportValue": "sls-test-project-dev-ApiGatewayRestApi"
+        }
+      },
+      "DependsOn": []
+    },
+    "ApiGatewayStage": {
+      "Type": "AWS::ApiGateway::Stage",
+      "Properties": {
+        "StageName": "myAlias",
+        "DeploymentId": {
+          "Ref": "ApiGatewayDeployment1494367071211"
+        },
+        "RestApiId": {
+          "Fn::ImportValue": "sls-test-project-dev-ApiGatewayRestApi"
+        },
+        "Variables": {
+          "SERVERLESS_ALIAS": "myAlias",
+          "SERVERLESS_STAGE": "dev"
+        }
+      },
+      "DependsOn": [
+        "ApiGatewayDeployment1494367071211"
+      ]
+    },
+    "Testfct1LambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "Testfct1Alias"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Fn::ImportValue": "sls-test-project-dev-ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "Testfct1LambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU",
+        "Testfct1Alias"
+      ]
+    },
+    "WarmUpPluginEventsRuleSchedule1": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "rate(5 minutes)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Ref": "WarmUpPluginAlias"
+            },
+            "Id": "warmUpPluginSchedule"
+          }
+        ]
+      },
+      "DependsOn": [
+        "WarmUpPluginAlias"
+      ]
+    },
+    "WarmUpPluginLambdaPermissionEventsRuleSchedule1": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "WarmUpPluginAlias"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "WarmUpPluginEventsRuleSchedule1",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "WarmUpPluginAlias"
+      ]
+    }
+  },
+  "Outputs": {
+    "ServerlessAliasName": {
+      "Description": "Alias the stack represents.",
+      "Value": "myStage"
+    },
+    "ServerlessAliasLogGroup": {
+      "Description": "Log group for alias.",
+      "Value": {
+        "Ref": "ServerlessAliasLogGroup"
+      },
+      "Export": {
+        "Name": "sls-test-project-dev-myAlias-LogGroup"
+      }
+    },
+    "AliasFlags": {
+      "Description": "Alias flags.",
+      "Value": "{\"hasRole\":false}"
+    },
+    "AliasResources": {
+      "Description": "Custom resource references",
+      "Value": "[]"
+    },
+    "AliasOutputs": {
+      "Description": "Custom output references",
+      "Value": "[]"
+    },
+    "ServerlessAliasReference": {
+      "Description": "Alias stack reference.",
+      "Value": {
+        "Fn::ImportValue": "sls-test-project-dev-ServerlessAliasReference"
+      }
+    }
+  }
+}
