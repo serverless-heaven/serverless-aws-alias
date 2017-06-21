@@ -48,6 +48,25 @@ with the alias name as option value.
 Example:
 `serverless deploy --alias myAlias`
 
+## Remove an alias
+
+See the `alias remove` command below.
+
+## Remove a service
+
+To remove a complete service, all deployed user aliases have to be removed first,
+using the `alias remove` command.
+
+To finally remove the whole service (same outcome as `serverless remove`), you have
+to remove the master (stage) alias with `serverless alias remove --alias=MY_STAGE_NAME`.
+
+This will trigger a removal of the master alias CF stack followed by a removal of
+the service stack. After the stacks have been removed, there should be no remains
+of the service.
+
+The plugin will print reasonable error messages if you miss something so that you're
+guided through the removal.
+
 ## Aliases and API Gateway
 
 In Serverless stages are, as above mentioned, parallel stacks with parallel resources.
