@@ -258,10 +258,10 @@ functions:
 resources:
   Resources:
     myKinesis:
-    Type: AWS::Kinesis::Stream
-  Properties:
-    Name: my-kinesis
-    ShardCount: 1
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: my-kinesis
+        ShardCount: 1
 ```
 
 When a function is deployed to an alias it will now also listen to the *my-kinesis*
@@ -298,10 +298,10 @@ functions:
 resources:
   Resources:
     myKinesis${self:provider.alias}:
-    Type: AWS::Kinesis::Stream
-  Properties:
-    Name: my-kinesis-${self.provider.alias}
-    ShardCount: 1
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: my-kinesis-${self.provider.alias}
+        ShardCount: 1
 ```
 
 ### Named streams
@@ -464,19 +464,3 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 
 * 1.0.0        Support "serverless logs" with aliases. First non-alpha!
-* 0.5.1-alpha1 Use separate Lambda roles per alias
-* 0.5.0-alpha1 Fixes a bug with deploying event sources introduced with 0.4.0
-               Use new event model introduced in SLS 1.12. Needs SLS 1.12 or greater from now on.
-   Add support for CW events.
-   Set SERVERLESS_ALIAS environment variable on deployed functions.
-* 0.4.0-alpha1 APIG support fixed. Support external IAM roles. BREAKING.
-* 0.3.4-alpha1 Bugfixes. IAM policy consolitaion. Show master alias information.
-* 0.3.3-alpha1 Bugfixes. Allow manual resource overrides. Allow methods attached to APIG root resource.
-* 0.3.2-alpha1 Allow initial project creation with activated alias plugin
-* 0.3.1-alpha1 Support Serverless 1.6 again with upgrade to 1.7+
-* 0.3.0-alpha1 Support lambda event subscriptions
-* 0.2.1-alpha1 Alias remove command removes unused resources
-* 0.2.0-alpha1 Support custom resources
-* 0.1.2-alpha1 Integration with "serverless info"
-* 0.1.1-alpha1 Full APIG support
-* 0.1.0-alpha1 Lambda function alias support
