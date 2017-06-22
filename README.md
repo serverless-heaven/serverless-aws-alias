@@ -92,6 +92,89 @@ Lambda invocation. This will call the aliased function version.
 Deployed stages have the alias stage variable set fixed, so a deployed alias stage is
 hard-wired to the aliased Lambda versions.
 
+### Stage configuration (NEW)
+
+The alias plugin supports configuring the deployed API Gateway stages, exactly as
+you can do it within the AWS APIG console, e.g. you can configure logging (with
+or without data/request tracing), setup caching or throttling on your endpoints.
+
+The configuration can be done on a service wide level, function level or method level
+by adding an `aliasStage` object either to `provider`, `any function` or a `http event`
+within a function in your _serverless.yml_. The configuration is applied hierarchically,
+where the inner configurations overwrite the outer ones.
+
+`HTTP Event -> FUNCTION -> SERVICE`
+
+#### The aliasStage configuration object
+
+All settings are optional, and if not specified will be set to the AWS stage defaults.
+
+```
+aliasStage:
+  cacheDataEncrypted: (Boolean)
+  cacheTtlInSeconds: (Integer)
+  cachingEnabled: (Boolean)
+  dataTraceEnabled: (Boolean) - Log full request/response bodies
+  loggingLevel: ("OFF", "INFO" or "ERROR")
+  metricsEnabled: (Boolean) - Enable detailed CW metrics
+  throttlingBurstLimit: (Integer)
+  throttlingRateLimit: (Number)
+```
+
+There are two further options that can only be specified on a service level and that
+affect the whole stage:
+
+```
+aliasStage:
+  cacheClusterEnabled: (Boolean)
+	cacheClusterSize: (Integer)
+```
+
+For more information see the [AWS::APIGateway::Stage](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-stage.html) or [MethodSettings](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apitgateway-stage-methodsetting.html) documentation
+on the AWS website.
+
+Sample serverless.yml (partial):
+
+```
+service: sls-test-project
+
+provider:
+  ...
+	# Enable detailed error logging on all endpoints
+	aliasStage:
+		loggingLevel: "ERROR"
+		dataTraceEnabled: true
+  ...
+
+functions:
+  myFunc1:
+	  ...
+		# myFunc1 should generally not log anything
+		aliasStage:
+		  loggingLevel: "OFF"
+		  dataTraceEnabled: false
+		events:
+		  - http:
+					method: GET
+					path: /func1
+			- http:
+					method: POST
+					path: /func1/create
+			- http:
+					method: PATCH
+					path: /func1/update
+					# The update endpoint needs special settings
+					aliasStage:
+					  loggingLevel: "INFO"
+					  dataTraceEnabled: true
+						throttlingBurstLimit: 200
+						throttlingRateLimit: 100
+
+	myFunc2:
+	  ...
+		# Will inherit the global settings if nothing is set on function level
+```
+
 ## Reference the current alias in your service
 
 You can reference the currently deployed alias with `${self:provider.alias}` in
