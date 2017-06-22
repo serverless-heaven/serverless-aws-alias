@@ -15,6 +15,7 @@ const AwsProvider = require(`${serverlessPath}/lib/plugins/aws/provider/awsProvi
 const Serverless = require(`${serverlessPath}/lib/Serverless`);
 
 chai.use(require('chai-as-promised'));
+chai.use(require('chai-subset'));
 chai.use(require('sinon-chai'));
 const expect = chai.expect;
 
@@ -53,6 +54,509 @@ describe('API Gateway', () => {
 
 	afterEach(() => {
 		sandbox.restore();
+	});
+
+	describe('#createStageResource()', () => {
+		let createStageResource;
+
+		beforeEach(() => {
+			createStageResource = _.bind(require('../../lib/stackops/apiGateway').internal.createStageResource, awsAlias);
+		});
+
+		it('should not throw with simple service', () => {
+			expect(() => createStageResource('apiRef', 'deployment')).to.not.throw;
+		});
+
+		it('should return a valid stage object', () => {
+			const stage = createStageResource('apiRef', 'deployment');
+
+			expect(stage).to.have.a.property('Type', 'AWS::ApiGateway::Stage');
+			expect(stage).to.have.a.deep.property('Properties.StageName', 'myAlias');
+			expect(stage).to.have.a.deep.property('Properties.DeploymentId').that.is.an('object').that.deep.equals({ Ref: 'deployment' });
+			expect(stage).to.have.a.deep.property('Properties.RestApiId').that.is.an('object').that.deep.equals({ 'Fn::ImportValue': 'apiRef' });
+			expect(stage).to.have.a.deep.property('Properties.Variables').that.is.an('object').that.containSubset({ SERVERLESS_ALIAS: 'myAlias' });
+		});
+
+		it('should set general stage configuration', () => {
+			awsAlias.serverless.service.provider.aliasStage = {
+				cacheClusterEnabled: true,
+				cacheClusterSize: 2
+			};
+
+			const stage = createStageResource('apiRef', 'deployment');
+			expect(stage).to.have.a.deep.property('Properties.CacheClusterEnabled', true);
+			expect(stage).to.have.a.deep.property('Properties.CacheClusterSize', 2);
+		});
+
+		it('should omit cacheClusterSize if not given', () => {
+			awsAlias.serverless.service.provider.aliasStage = {
+				cacheClusterEnabled: true
+			};
+
+			const stage = createStageResource('apiRef', 'deployment');
+			expect(stage).to.not.have.a.deep.property('Properties.CacheClusterSize');
+		});
+
+		it('should throw on invalid configuration keys', () => {
+			const service = {
+				service: 'testService',
+				serviceObject: {
+					name: 'testService'
+				},
+				provider: {
+					name: 'aws',
+					runtime: 'nodejs4.3',
+					stage: 'myStage',
+					alias: 'myAlias',
+					region: 'us-east-1',
+					aliasStage: {
+						notSomethingUnderstood: 'INFO',
+						cacheClusterSize: 2,
+						metricsEnabled: true
+					}
+				},
+				functions: {
+					functionA: {
+						handler: 'functionA.handler',
+						events: [
+							{
+								http: {
+									method: 'GET',
+									path: '/funcA'
+								}
+							},
+						],
+					}
+				}
+			};
+
+			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
+
+			expect(() => createStageResource('apiRef', 'deployment')).to.throw('Invalid stage config');
+		});
+
+		it('should throw on invalid configuration values', () => {
+			const service = {
+				service: 'testService',
+				serviceObject: {
+					name: 'testService'
+				},
+				provider: {
+					name: 'aws',
+					runtime: 'nodejs4.3',
+					stage: 'myStage',
+					alias: 'myAlias',
+					region: 'us-east-1',
+					aliasStage: {
+						cacheClusterSize: 2,
+						metricsEnabled: 'true'
+					}
+				},
+				functions: {
+					functionA: {
+						handler: 'functionA.handler',
+						events: [
+							{
+								http: {
+									method: 'GET',
+									path: '/funcA'
+								}
+							},
+						],
+					}
+				}
+			};
+
+			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
+
+			expect(() => createStageResource('apiRef', 'deployment')).to.throw('Invalid value for');
+		});
+
+		it('should use service config', () => {
+			const service = {
+				service: 'testService',
+				serviceObject: {
+					name: 'testService'
+				},
+				provider: {
+					name: 'aws',
+					runtime: 'nodejs4.3',
+					stage: 'myStage',
+					alias: 'myAlias',
+					region: 'us-east-1',
+					aliasStage: {
+						loggingLevel: 'INFO'
+					}
+				},
+				functions: {
+					functionA: {
+						handler: 'functionA.handler',
+						events: [
+							{
+								http: {
+									method: 'GET',
+									path: '/funcA'
+								}
+							},
+							{
+								http: {
+									method: 'POST',
+									path: '/funcA/create'
+								}
+							}
+						]
+					},
+					functionB: {
+						handler: 'functionB.handler',
+						events: [
+							{
+								http: {
+									method: 'GET',
+									path: '/funcB'
+								}
+							},
+							{
+								http: {
+									method: 'UPDATE',
+									path: '/funcB/update'
+								}
+							}
+						]
+					},
+				}
+			};
+			const expectedMethodSettings = [
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'GET',
+					ResourcePath: '/~1funcA'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'POST',
+					ResourcePath: '/~1funcA~1create'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'GET',
+					ResourcePath: '/~1funcB'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'UPDATE',
+					ResourcePath: '/~1funcB~1update'
+				},
+			];
+
+			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
+
+			const stage = createStageResource('apiRef', 'deployment');
+			expect(stage).to.have.a.deep.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
+		});
+
+		it('should prefer function config', () => {
+			const service = {
+				service: 'testService',
+				serviceObject: {
+					name: 'testService'
+				},
+				provider: {
+					name: 'aws',
+					runtime: 'nodejs4.3',
+					stage: 'myStage',
+					alias: 'myAlias',
+					region: 'us-east-1',
+					aliasStage: {
+						loggingLevel: 'INFO'
+					}
+				},
+				functions: {
+					functionA: {
+						handler: 'functionA.handler',
+						events: [
+							{
+								http: {
+									method: 'GET',
+									path: '/funcA'
+								}
+							},
+							{
+								http: {
+									method: 'POST',
+									path: '/funcA/create'
+								}
+							}
+						]
+					},
+					functionB: {
+						handler: 'functionB.handler',
+						events: [
+							{
+								http: {
+									method: 'GET',
+									path: '/funcB'
+								}
+							},
+							{
+								http: {
+									method: 'UPDATE',
+									path: '/funcB/update'
+								}
+							}
+						],
+						aliasStage: {
+							loggingLevel: 'ERROR',
+							metricsEnabled: true
+						}
+					},
+				}
+			};
+			const expectedMethodSettings = [
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'GET',
+					ResourcePath: '/~1funcA'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'POST',
+					ResourcePath: '/~1funcA~1create'
+				},
+				{
+					LoggingLevel: 'ERROR',
+					MetricsEnabled: true,
+					HttpMethod: 'GET',
+					ResourcePath: '/~1funcB'
+				},
+				{
+					LoggingLevel: 'ERROR',
+					MetricsEnabled: true,
+					HttpMethod: 'UPDATE',
+					ResourcePath: '/~1funcB~1update'
+				},
+			];
+
+			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
+
+			const stage = createStageResource('apiRef', 'deployment');
+			expect(stage).to.have.a.deep.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
+		});
+
+		it('should prefer event config', () => {
+			const service = {
+				service: 'testService',
+				serviceObject: {
+					name: 'testService'
+				},
+				provider: {
+					name: 'aws',
+					runtime: 'nodejs4.3',
+					stage: 'myStage',
+					alias: 'myAlias',
+					region: 'us-east-1',
+					aliasStage: {
+						loggingLevel: 'INFO'
+					}
+				},
+				functions: {
+					functionA: {
+						handler: 'functionA.handler',
+						events: [
+							{
+								http: {
+									method: 'GET',
+									path: '/funcA'
+								}
+							},
+							{
+								http: {
+									method: 'POST',
+									path: '/funcA/create',
+									aliasStage: {
+										metricsEnabled: true
+									}
+								}
+							}
+						]
+					},
+					functionB: {
+						handler: 'functionB.handler',
+						events: [
+							{
+								http: {
+									method: 'GET',
+									path: '/funcB'
+								}
+							},
+							{
+								http: {
+									method: 'UPDATE',
+									path: '/funcB/update',
+									aliasStage: {
+										loggingLevel: 'INFO',
+										cachingEnabled: true,
+									}
+								}
+							}
+						],
+						aliasStage: {
+							loggingLevel: 'ERROR',
+							metricsEnabled: true,
+						}
+					},
+				}
+			};
+			const expectedMethodSettings = [
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'GET',
+					ResourcePath: '/~1funcA'
+				},
+				{
+					LoggingLevel: 'INFO',
+					MetricsEnabled: true,
+					HttpMethod: 'POST',
+					ResourcePath: '/~1funcA~1create'
+				},
+				{
+					LoggingLevel: 'ERROR',
+					MetricsEnabled: true,
+					HttpMethod: 'GET',
+					ResourcePath: '/~1funcB'
+				},
+				{
+					LoggingLevel: 'INFO',
+					MetricsEnabled: true,
+					CachingEnabled: true,
+					HttpMethod: 'UPDATE',
+					ResourcePath: '/~1funcB~1update'
+				},
+			];
+
+			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
+
+			const stage = createStageResource('apiRef', 'deployment');
+			expect(stage).to.have.a.deep.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
+		});
+
+		it('should not set AWS default values', () => {
+			const service = {
+				service: 'testService',
+				serviceObject: {
+					name: 'testService'
+				},
+				provider: {
+					name: 'aws',
+					runtime: 'nodejs4.3',
+					stage: 'myStage',
+					alias: 'myAlias',
+					region: 'us-east-1',
+					aliasStage: {
+						loggingLevel: 'INFO'
+					}
+				},
+				functions: {
+					functionB: {
+						handler: 'functionB.handler',
+						events: [
+							{
+								http: {
+									method: 'GET',
+									path: '/funcB'
+								}
+							},
+							{
+								http: {
+									method: 'UPDATE',
+									path: '/funcB/update',
+									aliasStage: {
+										loggingLevel: 'ERROR',
+									}
+								}
+							},
+							{
+								http: {
+									method: 'PATCH',
+									path: '/funcB/update',
+									aliasStage: {
+										loggingLevel: 'OFF',
+										metricsEnabled: false
+									}
+								}
+							}
+						],
+						aliasStage: {
+							loggingLevel: 'OFF',
+							metricsEnabled: true
+						}
+					},
+				}
+			};
+			const expectedMethodSettings = [
+				{
+					MetricsEnabled: true,
+					HttpMethod: 'GET',
+					ResourcePath: '/~1funcB'
+				},
+				{
+					LoggingLevel: 'ERROR',
+					MetricsEnabled: true,
+					HttpMethod: 'UPDATE',
+					ResourcePath: '/~1funcB~1update'
+				},
+			];
+
+			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
+
+			const stage = createStageResource('apiRef', 'deployment');
+			expect(stage).to.have.a.deep.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
+		});
+
+		it('should not set stage config without actual configuration', () => {
+			const service = {
+				service: 'testService',
+				serviceObject: {
+					name: 'testService'
+				},
+				provider: {
+					name: 'aws',
+					runtime: 'nodejs4.3',
+					stage: 'myStage',
+					alias: 'myAlias',
+					region: 'us-east-1',
+				},
+				functions: {
+					functionB: {
+						handler: 'functionB.handler',
+						events: [
+							{
+								http: {
+									method: 'GET',
+									path: '/funcB'
+								}
+							},
+							{
+								http: {
+									method: 'UPDATE',
+									path: '/funcB/update',
+								}
+							},
+							{
+								http: {
+									method: 'PATCH',
+									path: '/funcB/update',
+								}
+							}
+						],
+					},
+				}
+			};
+
+			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
+
+			const stage = createStageResource('apiRef', 'deployment');
+			expect(stage).to.not.have.a.deep.property('Properties.MethodSettings');
+		});
 	});
 
 	describe('#aliasHandleApiGateway()', () => {
