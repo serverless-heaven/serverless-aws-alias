@@ -92,6 +92,89 @@ Lambda invocation. This will call the aliased function version.
 Deployed stages have the alias stage variable set fixed, so a deployed alias stage is
 hard-wired to the aliased Lambda versions.
 
+### Stage configuration (NEW)
+
+The alias plugin supports configuring the deployed API Gateway stages, exactly as
+you can do it within the AWS APIG console, e.g. you can configure logging (with
+or without data/request tracing), setup caching or throttling on your endpoints.
+
+The configuration can be done on a service wide level, function level or method level
+by adding an `aliasStage` object either to `provider`, `any function` or a `http event`
+within a function in your _serverless.yml_. The configuration is applied hierarchically,
+where the inner configurations overwrite the outer ones.
+
+`HTTP Event -> FUNCTION -> SERVICE`
+
+#### The aliasStage configuration object
+
+All settings are optional, and if not specified will be set to the AWS stage defaults.
+
+```
+aliasStage:
+  cacheDataEncrypted: (Boolean)
+  cacheTtlInSeconds: (Integer)
+  cachingEnabled: (Boolean)
+  dataTraceEnabled: (Boolean) - Log full request/response bodies
+  loggingLevel: ("OFF", "INFO" or "ERROR")
+  metricsEnabled: (Boolean) - Enable detailed CW metrics
+  throttlingBurstLimit: (Integer)
+  throttlingRateLimit: (Number)
+```
+
+There are two further options that can only be specified on a service level and that
+affect the whole stage:
+
+```
+aliasStage:
+  cacheClusterEnabled: (Boolean)
+  cacheClusterSize: (Integer)
+```
+
+For more information see the [AWS::APIGateway::Stage](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-stage.html) or [MethodSettings](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apitgateway-stage-methodsetting.html) documentation
+on the AWS website.
+
+Sample serverless.yml (partial):
+
+```
+service: sls-test-project
+
+provider:
+  ...
+  # Enable detailed error logging on all endpoints
+  aliasStage:
+    loggingLevel: "ERROR"
+    dataTraceEnabled: true
+  ...
+
+functions:
+  myFunc1:
+    ...
+    # myFunc1 should generally not log anything
+    aliasStage:
+      loggingLevel: "OFF"
+      dataTraceEnabled: false
+    events:
+      - http:
+          method: GET
+          path: /func1
+      - http:
+          method: POST
+          path: /func1/create
+      - http:
+          method: PATCH
+          path: /func1/update
+          # The update endpoint needs special settings
+          aliasStage:
+            loggingLevel: "INFO"
+            dataTraceEnabled: true
+            throttlingBurstLimit: 200
+            throttlingRateLimit: 100
+
+  myFunc2:
+    ...
+    # Will inherit the global settings if nothing is set on function level
+```
+
 ## Reference the current alias in your service
 
 You can reference the currently deployed alias with `${self:provider.alias}` in
@@ -174,11 +257,11 @@ functions:
           path: /func1
 resources:
   Resources:
-	  myKinesis:
-		  Type: AWS::Kinesis::Stream
-			Properties:
-			  Name: my-kinesis
-			  ShardCount: 1
+    myKinesis:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: my-kinesis
+        ShardCount: 1
 ```
 
 When a function is deployed to an alias it will now also listen to the *my-kinesis*
@@ -214,11 +297,11 @@ functions:
           path: /func1
 resources:
   Resources:
-	  myKinesis${self:provider.alias}:
-		  Type: AWS::Kinesis::Stream
-			Properties:
-			  Name: my-kinesis-${self.provider.alias}
-			  ShardCount: 1
+    myKinesis${self:provider.alias}:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: my-kinesis-${self.provider.alias}
+        ShardCount: 1
 ```
 
 ### Named streams
@@ -343,7 +426,7 @@ The plugin adds the following lifecycle events that can be hooked by other plugi
 * alias:deploy:done
 
   The Alias plugin is successfully finished. Hook this instead of 'after:deploy:deploy'
-	to make sure that your plugin gets triggered right after the alias plugin is done.
+  to make sure that your plugin gets triggered right after the alias plugin is done.
 
 * alias:remove:removeStack
 
@@ -360,8 +443,8 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 * The master alias for a stage could be protected by a separate stack policy that
   only allows admin users to deploy or change it. The stage stack does not have
-	to be protected individually because the stack cross references prohibit changes
-	naturally. It might be possible to introduce some kind of per alias policy.
+  to be protected individually because the stack cross references prohibit changes
+  naturally. It might be possible to introduce some kind of per alias policy.
 
 ## Version history
 
@@ -381,19 +464,3 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 
 * 1.0.0        Support "serverless logs" with aliases. First non-alpha!
-* 0.5.1-alpha1 Use separate Lambda roles per alias
-* 0.5.0-alpha1 Fixes a bug with deploying event sources introduced with 0.4.0
-               Use new event model introduced in SLS 1.12. Needs SLS 1.12 or greater from now on.
-							 Add support for CW events.
-							 Set SERVERLESS_ALIAS environment variable on deployed functions.
-* 0.4.0-alpha1 APIG support fixed. Support external IAM roles. BREAKING.
-* 0.3.4-alpha1 Bugfixes. IAM policy consolitaion. Show master alias information.
-* 0.3.3-alpha1 Bugfixes. Allow manual resource overrides. Allow methods attached to APIG root resource.
-* 0.3.2-alpha1 Allow initial project creation with activated alias plugin
-* 0.3.1-alpha1 Support Serverless 1.6 again with upgrade to 1.7+
-* 0.3.0-alpha1 Support lambda event subscriptions
-* 0.2.1-alpha1 Alias remove command removes unused resources
-* 0.2.0-alpha1 Support custom resources
-* 0.1.2-alpha1 Integration with "serverless info"
-* 0.1.1-alpha1 Full APIG support
-* 0.1.0-alpha1 Lambda function alias support
