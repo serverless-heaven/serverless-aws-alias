@@ -448,6 +448,10 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.3.0
+  * Support full stage configuration at multiple levels [#57](https://github.com/HyperBrain/serverless-aws-alias/issues/57)
+  * Fix issue when trying to remove a stage completely [#56](https://github.com/HyperBrain/serverless-aws-alias/issues/56)
+
 * 1.2.1
   * Fix issue when using a Cognito User Pools authorizer [#51](https://github.com/HyperBrain/serverless-aws-alias/issues/51)
   * IAM roles of removed aliases are not deleted [#50](https://github.com/HyperBrain/serverless-aws-alias/issues/50)
