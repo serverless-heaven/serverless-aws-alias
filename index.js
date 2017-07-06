@@ -6,7 +6,7 @@
 
 const BbPromise = require('bluebird')
 		, _ = require('lodash')
-    , Path = require('path')
+		, Path = require('path')
 		, validate = require('./lib/validate')
 		, configureAliasStack = require('./lib/configureAliasStack')
 		, createAliasStack = require('./lib/createAliasStack')
@@ -126,7 +126,7 @@ class AwsAlias {
 
 			'before:remove:remove': () => {
 				if (!this._validated) {
-					throw new this._serverless.classes.Error(`Use "serverless alias remove --alias=${this._stage}" to remove the service.`);
+					return BbPromise.reject(new this._serverless.classes.Error(`Use "serverless alias remove --alias=${this._stage}" to remove the service.`));
 				}
 				return BbPromise.resolve();
 			},
@@ -139,6 +139,12 @@ class AwsAlias {
 				.then(this.logsGetLogStreams)
 				.then(this.logsShowLogs),
 
+			'logs:api:logs': () => BbPromise.bind(this)
+				.then(this.validate)
+				.then(this.logsValidateApi)
+				.then(this.logsGetApiLogStreams)
+				.then(this.logsShowApiLogs),
+
 			'alias:remove:remove': () => BbPromise.bind(this)
 				.then(this.validate)
 				.then(this.aliasStackLoadCurrentCFStackAndDependencies)
@@ -149,46 +155,94 @@ class AwsAlias {
 		const pluginManager = this.serverless.pluginManager;
 		const logHooks = pluginManager.hooks['logs:logs'];
 		_.pullAllWith(logHooks, [ 'AwsLogs' ], (a, b) => a.pluginName === b);
+
+		// Extend the logs command if available
+		try {
+			const logCommand = pluginManager.getCommand([ 'logs' ]);
+			logCommand.options.alias = {
+				usage: 'Alias'
+			};
+			logCommand.commands = _.assign({}, logCommand.commands, {
+				api: {
+					usage: 'Output the logs of a deployed APIG stage (alias)',
+					lifecycleEvents: [
+						'logs',
+					],
+					options: {
+						alias: {
+							usage: 'Alias'
+						},
+						stage: {
+							usage: 'Stage of the service',
+							shortcut: 's',
+						},
+						region: {
+							usage: 'Region of the service',
+							shortcut: 'r',
+						},
+						tail: {
+							usage: 'Tail the log output',
+							shortcut: 't',
+						},
+						startTime: {
+							usage: 'Logs before this time will not be displayed',
+						},
+						filter: {
+							usage: 'A filter pattern',
+						},
+						interval: {
+							usage: 'Tail polling interval in milliseconds. Default: `1000`',
+							shortcut: 'i',
+						},
+					},
+					key: 'logs:api',
+					pluginName: 'Logs',
+					commands: {},
+				}
+			});
+		} catch (e) {
+			// Do nothing
+		}
 	}
 
-  /**
-   * Expose the supported commands as read-only property.
-   */
+	/**
+	 * Expose the supported commands as read-only property.
+	 */
 	get commands() {
 		return this._commands;
 	}
 
-  /**
-   * Expose the supported hooks as read-only property.
-   */
+	/**
+	 * Expose the supported hooks as read-only property.
+	 */
 	get hooks() {
 		return this._hooks;
 	}
 
 	/**
-   * Expose the options as read-only property.
-   */
+	 * Expose the options as read-only property.
+	 */
 	get options() {
 		return this._options;
 	}
 
 	/**
-   * Expose the supported provider as read-only property.
-   */
+	 * Expose the supported provider as read-only property.
+	 */
 	get provider() {
 		return this._provider;
 	}
 
 	/**
-   * Expose the serverless object as read-only property.
-   */
+	 * Expose the serverless object as read-only property.
+	 */
 	get serverless() {
 		return this._serverless;
 	}
 
 	/**
-   * Expose the stack name as read-only property.
-   */
+	 * Expose the stack name as read-only property.
+	 */
 	get stackName() {
 		return this._stackName;
 	}
