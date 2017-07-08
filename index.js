@@ -141,9 +141,9 @@ class AwsAlias {
 
 			'logs:api:logs': () => BbPromise.bind(this)
 				.then(this.validate)
-				.then(this.logsValidateApi)
-				.then(this.logsGetApiLogStreams)
-				.then(this.logsShowApiLogs),
+				.then(this.apiLogsValidate)
+				.then(this.apiLogsGetLogStreams)
+				.then(this.apiLogsShowLogs),
 
 			'alias:remove:remove': () => BbPromise.bind(this)
 				.then(this.validate)
