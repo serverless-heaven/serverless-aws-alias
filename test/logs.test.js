@@ -323,12 +323,12 @@ describe('logs', () => {
 					{
 						logStreamName: '2016/07/28/[20]BE6A2C395AA244C8B7069D8C48B03B9E',
 						timestamp: 1469687512311,
-						message: 'test',
+						message: '',
 					},
 					{
 						logStreamName: '2016/07/28/[20]BE6A2C395AA244C8B7069D8C48B03B9E',
 						timestamp: 1469687512311,
-						message: 'test',
+						message: '',
 					},
 				],
 			};
@@ -373,12 +373,12 @@ describe('logs', () => {
 					{
 						logStreamName: '2016/07/28/[20]BE6A2C395AA244C8B7069D8C48B03B9E',
 						timestamp: 1469687512311,
-						message: 'test',
+						message: '',
 					},
 					{
 						logStreamName: '2016/07/28/[20]BE6A2C395AA244C8B7069D8C48B03B9E',
 						timestamp: 1469687512311,
-						message: 'test',
+						message: '',
 					},
 				],
 			};
