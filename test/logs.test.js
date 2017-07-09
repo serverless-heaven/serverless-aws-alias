@@ -2,6 +2,7 @@
 
 const getInstalledPath = require('get-installed-path');
 const BbPromise = require('bluebird');
+const moment = require('moment');
 const chai = require('chai');
 const sinon = require('sinon');
 const AWSAlias = require('../index');
@@ -23,6 +24,7 @@ describe('logs', () => {
 	let providerRequestStub;
 	let logStub;
 	let aliasGetAliasFunctionVersionsStub;
+	let aliasStacksDescribeResourceStub;
 
 	before(() => {
 		sandbox = sinon.sandbox.create();
@@ -44,6 +46,7 @@ describe('logs', () => {
 		providerRequestStub = sandbox.stub(awsAlias._provider, 'request');
 		logStub = sandbox.stub(serverless.cli, 'log');
 		aliasGetAliasFunctionVersionsStub = sandbox.stub(awsAlias, 'aliasGetAliasFunctionVersions');
+		aliasStacksDescribeResourceStub = sandbox.stub(awsAlias, 'aliasStacksDescribeResource');
 
 		logStub.returns();
 	});
@@ -76,12 +79,12 @@ describe('logs', () => {
 			};
 		});
 
-		it('it should throw error if function is not provided', () => {
+		it('should throw error if function is not provided', () => {
 			serverless.service.functions = null;
 			expect(() => awsAlias.logsValidate()).to.throw(Error);
 		});
 
-		it('it should set default options', () => {
+		it('should set default options', () => {
 			return expect(awsAlias.logsValidate()).to.be.fulfilled
 			.then(() => BbPromise.all([
 				expect(awsAlias.options.stage).to.deep.equal('dev'),
@@ -91,6 +94,82 @@ describe('logs', () => {
 				expect(awsAlias.options.logGroupName).to.deep.equal(awsAlias.provider.naming
 					.getLogGroupName('customName'))
 			]));
+		});
+	});
+
+	describe('#apiLogsValidate()', () => {
+		beforeEach(() => {
+			serverless.config.servicePath = true;
+			serverless.service.environment = {
+				vars: {},
+				stages: {
+					dev: {
+						vars: {},
+						regions: {
+							'us-east-1': {
+								vars: {},
+							},
+						},
+					},
+				},
+			};
+			serverless.service.functions = {
+				first: {
+					handler: true,
+					name: 'customName',
+				},
+			};
+		});
+
+		it('should throw error if function is provided', () => {
+			options.function = 'first';
+			expect(awsAlias.apiLogsValidate()).to.be.rejectedWith(/--function is not supported/);
+		});
+
+		it('should set log group', () => {
+			aliasStacksDescribeResourceStub.returns(BbPromise.resolve({
+				StackResources: [
+					{
+						LogicalResourceId: 'ApiGatewayRestApi',
+						PhysicalResourceId: 'ApiId'
+					}
+				]
+			}));
+			delete options.function;
+			return expect(awsAlias.apiLogsValidate()).to.be.fulfilled
+			.then(() => BbPromise.all([
+				expect(awsAlias._apiLogsLogGroup).to.equal('API-Gateway-Execution-Logs_ApiId/myAlias'),
+				expect(awsAlias.options.interval).to.be.equal(1000),
+			]));
+		});
+
+		it('should reject if no api is defined', () => {
+			aliasStacksDescribeResourceStub.returns(BbPromise.resolve({
+				StackResources: []
+			}));
+			delete options.function;
+			return expect(awsAlias.apiLogsValidate()).to.be.rejectedWith(/does not contain any/);
+		});
+
+		it('should forward CF errors', () => {
+			aliasStacksDescribeResourceStub.returns(BbPromise.reject(new Error('Failed')));
+			delete options.function;
+			return expect(awsAlias.apiLogsValidate()).to.be.rejectedWith(/Failed/);
+		});
+
+		it('should log in verbose mode', () => {
+			aliasStacksDescribeResourceStub.returns(BbPromise.resolve({
+				StackResources: [
+					{
+						LogicalResourceId: 'ApiGatewayRestApi',
+						PhysicalResourceId: 'ApiId'
+					}
+				]
+			}));
+			options.verbose = true;
+			delete options.function;
+			return expect(awsAlias.apiLogsValidate()).to.be.fulfilled
+			.then(() => expect(logStub).to.have.been.called);
 		});
 	});
 
@@ -163,6 +242,65 @@ describe('logs', () => {
 			aliasGetAliasFunctionVersionsStub.returns(BbPromise.resolve([]));
 
 			return expect(awsAlias.logsGetLogStreams()).to.be.rejectedWith("");
+		});
+	});
+
+	describe('#apiLogsGetLogStreams()', () => {
+		beforeEach(() => {
+			awsAlias.serverless.service.service = 'new-service';
+			awsAlias._apiLogsLogGroup = 'API-Gateway-Execution-Logs_ApiId/myAlias';
+			options = {
+				stage: 'dev',
+				region: 'us-east-1',
+			};
+		});
+
+		it('should get log streams', () => {
+			const streamReply = {
+				logStreams: [
+					{
+						logStreamName: '2016/07/28/[$LATEST]83f5206ab2a8488290349b9c1fbfe2ba',
+						creationTime: 1469687512311,
+					},
+					{
+						logStreamName: '2016/07/28/[20]BE6A2C395AA244C8B7069D8C48B03B9E',
+						creationTime: 1469687512311,
+					},
+					{
+						logStreamName: '2016/07/28/[20]83f5206ab2a8488290349b9c1fbfe2ba',
+						creationTime: 1469687512311,
+					},
+					{
+						logStreamName: '2016/07/28/[10]83f5206ab2a8488290349b9c1fbfe2ba',
+						creationTime: 1469687512311,
+					},
+				],
+			};
+			providerRequestStub.resolves(streamReply);
+
+			return expect(awsAlias.apiLogsGetLogStreams()).to.be.fulfilled
+			.then(logStreamNames => BbPromise.all([
+				expect(providerRequestStub).to.have.been.calledOnce,
+				expect(providerRequestStub).to.have.been.calledWithExactly(
+					'CloudWatchLogs',
+					'describeLogStreams',
+					{
+						logGroupName: awsAlias._apiLogsLogGroup,
+						descending: true,
+						limit: 50,
+						orderBy: 'LastEventTime',
+					},
+					awsAlias.options.stage,
+					awsAlias.options.region
+				),
+				expect(logStreamNames).to.have.lengthOf(4),
+			]));
+		});
+
+		it('should throw error if no log streams found', () => {
+			providerRequestStub.resolves();
+
+			return expect(awsAlias.apiLogsGetLogStreams()).to.be.rejectedWith(/No logs exist/);
 		});
 	});
 
@@ -279,4 +417,67 @@ describe('logs', () => {
 				]));
 		});
 	});
+
+	describe('#apiLogsShowLogs()', () => {
+		let logsShowLogsStub;
+
+		beforeEach(() => {
+			logsShowLogsStub = sandbox.stub(awsAlias, 'logsShowLogs');
+		});
+
+		it('should call logsShowLogs properly', () => {
+			const streamNames = [
+				'2016/07/28/E6A2C395AA244C8B7069D8C48B03B9E',
+				'2016/07/28/83f5206ab2a8488290349b9c1fbfe2ba',
+			];
+			logsShowLogsStub.returns(BbPromise.resolve());
+			return expect(awsAlias.apiLogsShowLogs(streamNames)).to.be.fulfilled
+			.then(() => BbPromise.all([
+				expect(logsShowLogsStub).to.have.been.calledOnce,
+				expect(logsShowLogsStub).to.have.been.calledWith(streamNames)
+			]));
+		});
+
+		it('should set a formatter', () => {
+			const streamNames = [
+				'2016/07/28/E6A2C395AA244C8B7069D8C48B03B9E',
+				'2016/07/28/83f5206ab2a8488290349b9c1fbfe2ba',
+			];
+			logsShowLogsStub.returns(BbPromise.resolve());
+			return expect(awsAlias.apiLogsShowLogs(streamNames)).to.be.fulfilled
+			.then(() => {
+				const formatter = logsShowLogsStub.getCall(0).args[1];
+				return expect(formatter).to.be.a('function');
+			});
+		});
+
+		describe('formatter', () => {
+			let formatter;
+
+			beforeEach(() => {
+				const streamNames = [
+					'2016/07/28/E6A2C395AA244C8B7069D8C48B03B9E',
+					'2016/07/28/83f5206ab2a8488290349b9c1fbfe2ba',
+				];
+				logsShowLogsStub.returns(BbPromise.resolve());
+				return awsAlias.apiLogsShowLogs(streamNames)
+				.then(() => {
+					formatter = logsShowLogsStub.getCall(0).args[1];
+					return BbPromise.resolve();
+				});
+			});
+
+			it('should format an event', () => {
+				const testEvent = {
+					timestamp: moment('2017-07-09').valueOf(),
+					message: '(message-id) This is a test message'
+				};
+				expect(formatter(testEvent)).to.be.a('string')
+					.that.contains('This is a test message');
+				expect(formatter(testEvent)).to.be.a('string')
+					.that.contains('2017-07-09 00:00:00.000 (+');
+			});
+		});
+	});
+
 });
