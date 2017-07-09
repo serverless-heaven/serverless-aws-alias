@@ -137,7 +137,7 @@ class AwsAlias {
 				.then(this.validate)
 				.then(this.logsValidate)
 				.then(this.logsGetLogStreams)
-				.then(this.logsShowLogs),
+				.then(this.functionLogsShowLogs),
 
 			'logs:api:logs': () => BbPromise.bind(this)
 				.then(this.validate)

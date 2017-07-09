@@ -304,7 +304,7 @@ describe('logs', () => {
 		});
 	});
 
-	describe('#logsShowLogs()', () => {
+	describe('#functionLogsShowLogs()', () => {
 		let clock;
 
 		beforeEach(() => {
@@ -348,7 +348,7 @@ describe('logs', () => {
 				alias: 'myAlias',
 			};
 
-			return expect(awsAlias.logsShowLogs(logStreamNamesMock)).to.be.fulfilled
+			return expect(awsAlias.functionLogsShowLogs(logStreamNamesMock)).to.be.fulfilled
 			.then(() => BbPromise.all([
 				expect(providerRequestStub).to.have.been.calledOnce,
 				expect(providerRequestStub).to.have.been.calledWithExactly(
@@ -398,7 +398,7 @@ describe('logs', () => {
 				alias: 'myAlias',
 			};
 
-			return expect(awsAlias.logsShowLogs(logStreamNamesMock)).to.be.fulfilled
+			return expect(awsAlias.functionLogsShowLogs(logStreamNamesMock)).to.be.fulfilled
 				.then(() => BbPromise.all([
 					expect(providerRequestStub).to.have.been.calledOnce,
 					expect(providerRequestStub).to.have.been.calledWithExactly(

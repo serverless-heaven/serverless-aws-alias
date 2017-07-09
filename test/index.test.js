@@ -20,6 +20,11 @@ const expect = chai.expect;
 describe('AwsAlias', () => {
 	let serverless;
 	let options;
+	let sandbox;
+
+	before(() => {
+		sandbox = sinon.sandbox.create();
+	});
 
 	beforeEach(() => {
 		options = {
@@ -30,6 +35,10 @@ describe('AwsAlias', () => {
 		serverless.cli = new serverless.classes.CLI(serverless);
 		serverless.service.service = 'myService';
 		serverless.setProvider('aws', new AwsProvider(serverless, options));
+	});
+
+	afterEach(() => {
+		sandbox.restore();
 	});
 
 	describe('constructor', () => {
@@ -52,6 +61,18 @@ describe('AwsAlias', () => {
 
 			expect(awsAlias).to.have.property('_serverless', serverless);
 			expect(awsAlias).to.have.property('_options').to.deep.equal(options);
+		});
+
+		it('should add the logs api command', () => {
+			const command = {
+				options: {},
+				commands: {},
+			};
+			const getCommandStub = sandbox.stub(serverless.pluginManager, 'getCommand');
+			getCommandStub.returns(command);
+			const awsAlias = new AwsAlias(serverless);
+			expect(awsAlias).to.be.an('object');
+			expect(command).to.have.deep.property('commands.api');
 		});
 	});
 
@@ -85,6 +106,9 @@ describe('AwsAlias', () => {
 		let logsShowLogsStub;
 		let removeAliasStub;
 		let listAliasesStub;
+		let apiLogsValidateStub;
+		let apiLogsGetLogStreamsStub;
+		let apiLogsShowLogsStub;
 
 		before(() => {
 			sandbox = sinon.sandbox.create();
@@ -106,6 +130,9 @@ describe('AwsAlias', () => {
 			logsShowLogsStub = sandbox.stub(awsAlias, 'logsShowLogs');
 			removeAliasStub = sandbox.stub(awsAlias, 'removeAlias');
 			listAliasesStub = sandbox.stub(awsAlias, 'listAliases');
+			apiLogsValidateStub = sandbox.stub(awsAlias, 'apiLogsValidate');
+			apiLogsGetLogStreamsStub = sandbox.stub(awsAlias, 'apiLogsGetLogStreams');
+			apiLogsShowLogsStub = sandbox.stub(awsAlias, 'apiLogsShowLogs');
 		});
 
 		afterEach(() => {
@@ -184,6 +211,18 @@ describe('AwsAlias', () => {
 				expect(logsValidateStub).to.be.calledOnce,
 				expect(logsGetLogStreamsStub).to.be.calledOnce,
 				expect(logsShowLogsStub).to.be.calledOnce
+			));
+		});
+
+		it('logs:api:logs should resolve', () => {
+			apiLogsValidateStub.returns(BbPromise.resolve());
+			apiLogsGetLogStreamsStub.returns(BbPromise.resolve());
+			apiLogsShowLogsStub.returns(BbPromise.resolve());
+			return expect(awsAlias.hooks['logs:api:logs']()).to.eventually.be.fulfilled
+			.then(() => BbPromise.join(
+				expect(apiLogsValidateStub).to.be.calledOnce,
+				expect(apiLogsGetLogStreamsStub).to.be.calledOnce,
+				expect(apiLogsShowLogsStub).to.be.calledOnce
 			));
 		});
 
