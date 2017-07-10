@@ -105,6 +105,13 @@ where the inner configurations overwrite the outer ones.
 
 `HTTP Event -> FUNCTION -> SERVICE`
 
+#### API logs
+
+The generated API logs (in case you enable logging with the `loggingLevel` property)
+can be shown the same way as the function logs. The plugin adds the `serverless logs api`
+command which will show the logs for the service's API. To show logs for a specific
+deployed alias you can combine it with the `--alias` option as usual.
+
 #### The aliasStage configuration object
 
 All settings are optional, and if not specified will be set to the AWS stage defaults.
@@ -330,6 +337,11 @@ The plugin integrates with the Serverless logs command (all standard options wil
 work). Additionally, given an alias with `--alias=XXXX`, logs will show the logs
 for the selected alias. Without the alias option it will show the master alias
 (aka. stage alias).
+
+The generated API logs (in case you enable logging with the stage `loggingLevel` property)
+can be shown the same way as the function logs. The plugin adds the `serverless logs api`
+command which will show the logs for the service's API. To show logs for a specific
+deployed alias you can combine it with the `--alias` option as usual.
 
 ## The alias command
 
