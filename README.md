@@ -460,6 +460,9 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.4.1
+  * Fixed crash when using logs --tail
+
 * 1.4.0
   * Add support for S3 server side encryption [#63](https://github.com/HyperBrain/serverless-aws-alias/issues/63)
   * Add `serverless logs api` command to watch API logs [#60](https://github.com/HyperBrain/serverless-aws-alias/issues/60)
