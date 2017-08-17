@@ -17,7 +17,8 @@ const BbPromise = require('bluebird')
 		, removeAlias = require('./lib/removeAlias')
 		, logs = require('./lib/logs')
 		, collectUserResources = require('./lib/collectUserResources')
-		, uploadAliasArtifacts = require('./lib/uploadAliasArtifacts');
+		, uploadAliasArtifacts = require('./lib/uploadAliasArtifacts')
+		, updateFunctionAlias = require('./lib/updateFunctionAlias');
 
 class AwsAlias {
 
@@ -66,6 +67,7 @@ class AwsAlias {
 			aliasRestructureStack,
 			stackInformation,
 			uploadAliasArtifacts,
+			updateFunctionAlias,
 			setBucketName,
 			monitorStack
 		);
@@ -119,6 +121,19 @@ class AwsAlias {
 
 			'after:aws:deploy:deploy:updateStack': () => BbPromise.bind(this)
 				.then(this.updateAliasStack),
+
+			'before:deploy:function:initialize': () => BbPromise.bind(this)
+				.then(this.validate)
+				.then(() => {
+					// Force forced deploy
+					if (!this._options.force) {
+						return BbPromise.reject(new this.serverless.classes.Error("You must deploy single functions using --force with the alias plugin."));
+					}
+					return BbPromise.resolve();
+				}),
+
+			'after:deploy:function:deploy': () => BbPromise.bind(this)
+				.then(this.updateFunctionAlias),
 
 			'after:info:info': () => BbPromise.bind(this)
 				.then(this.validate)
