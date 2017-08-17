@@ -40,6 +40,14 @@ function parameters (memory, etc.) cannot be changed for a deployed version
 by accident, as it can be done with the `$LATEST` qualifier.
 This adds an additional level of stability to your deployment process.
 
+## Deploy a single function
+
+The plugin supports `serverless deploy function` and moves the alias to the
+updated function version. However you must specify the `--force` switch on the
+commandline to enforce Serverless to deploy a new function ZIP regardless, if the
+code has changed or not. This is necessary to prevent setting the alias to a
+version of the function that has been deployed by another developer.
+
 ## Deploy an alias
 
 To deploy an alias to a stage, just add the `--alias` option to `serverless deploy`
@@ -459,6 +467,9 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
   naturally. It might be possible to introduce some kind of per alias policy.
 
 ## Version history
+
+* 1.5.0
+  * Support `serverless deploy function` [#29](https://github.com/HyperBrain/serverless-aws-alias/issues/29)
 
 * 1.4.1
   * Fixed crash when using logs --tail
