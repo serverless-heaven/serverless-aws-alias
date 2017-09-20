@@ -8,7 +8,7 @@
     "url": "git@github.com:hyperbrain/serverless-aws-alias.git"
   },
   "scripts": {
-    "test": "istanbul cover -x test node_modules/mocha/bin/_mocha 'test/**/*.js' -- -R spec --recursive",
+    "test": "istanbul cover -x test node_modules/mocha/bin/_mocha \"test/**/*.js\" -- -R spec --recursive",
     "eslint": "node node_modules/eslint/bin/eslint.js --ext .js lib"
   },
   "author": "Frank Schmid <fschmid740@googlemail.com>",
