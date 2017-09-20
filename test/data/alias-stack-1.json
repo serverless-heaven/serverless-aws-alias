@@ -69,6 +69,35 @@
         "Description": "Serverless WarmUP Plugin"
       }
     },
+    "LoadLambdaVersion9nzNzXU0KVS10J3elsZPTmraDJLykaEDGyufyEvzk": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "FunctionName": {
+          "Fn::ImportValue": "sls-test-project-dev-Load-LambdaFunctionArn"
+        },
+        "CodeSha256": "9nzNzXU0KVS10J3elsZPTm/raDJLykaEDGyu+fyEvzk="
+      }
+    },
+    "LoadAlias": {
+      "Type": "AWS::Lambda::Alias",
+      "Properties": {
+        "Description": "Load Function",
+        "FunctionName": {
+          "Fn::ImportValue": "sls-test-project-dev-Load-LambdaFunctionArn"
+        },
+        "FunctionVersion": {
+          "Fn::GetAtt": [
+            "LoadLambdaVersion9nzNzXU0KVS10J3elsZPTmraDJLykaEDGyufyEvzk",
+            "Version"
+          ]
+        },
+        "Name": "myAlias"
+      },
+      "DependsOn": [
+        "WarmUpPluginLambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU"
+      ]
+    },
     "ApiGatewayDeployment1494367071211": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {

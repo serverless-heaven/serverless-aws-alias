@@ -18,7 +18,7 @@ chai.use(require('chai-as-promised'));
 chai.use(require('sinon-chai'));
 const expect = chai.expect;
 
-describe('SNS Events', () => {
+describe('S3 Events', () => {
 	let serverless;
 	let options;
 	let awsAlias;
@@ -52,43 +52,43 @@ describe('SNS Events', () => {
 		sandbox.restore();
 	});
 
-	describe('#aliasHandleSNSEvents()', () => {
+	describe('#aliasHandleS3Events()', () => {
 		let stack1;
 		let aliasStack1;
-		let snsStack1;
+		let s3Stack1;
 
 		beforeEach(() => {
 			stack1 = _.cloneDeep(require('../data/sls-stack-1.json'));
 			aliasStack1 = _.cloneDeep(require('../data/alias-stack-1.json'));
-			snsStack1 = _.cloneDeep(require('../data/sns-stack.json'));
+			s3Stack1 = _.cloneDeep(require('../data/s3-stack.json'));
 		});
 
 		it('should succeed with standard template', () => {
 			serverless.service.provider.compiledCloudFormationTemplate = stack1;
 			serverless.service.provider.compiledCloudFormationAliasTemplate = aliasStack1;
-			return expect(awsAlias.aliasHandleSNSEvents({}, [], {})).to.be.fulfilled;
+			return expect(awsAlias.aliasHandleS3Events({}, [], {})).to.be.fulfilled;
 		});
 
 		it('should move resources to alias stack', () => {
-			const snsStack = serverless.service.provider.compiledCloudFormationTemplate = snsStack1;
+			const s3Stack = serverless.service.provider.compiledCloudFormationTemplate = s3Stack1;
 			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasStack1;
-			return expect(awsAlias.aliasHandleSNSEvents({}, [], {})).to.be.fulfilled
+			return expect(awsAlias.aliasHandleS3Events({}, [], {})).to.be.fulfilled
 			.then(() => BbPromise.all([
-				expect(snsStack).to.not.have.deep.property('Resources.SNSTopicSlstestprojecttopic'),
-				expect(snsStack).to.not.have.deep.property('Resources.Testfct1LambdaPermissionSlstestprojecttopicSNS'),
-				expect(aliasStack).to.have.deep.property('Resources.SNSTopicSlstestprojecttopic'),
-				expect(aliasStack).to.have.deep.property('Resources.Testfct1LambdaPermissionSlstestprojecttopicSNS'),
+				expect(s3Stack).to.not.have.deep.property('Resources.S3BucketBucket'),
+				expect(s3Stack).to.not.have.deep.property('Resources.LoadLambdaPermissionTestS3'),
+				expect(aliasStack).to.have.deep.property('Resources.S3BucketBucket'),
+				expect(aliasStack).to.have.deep.property('Resources.LoadLambdaPermissionTestS3'),
 			]));
 		});
 
 		it('should replace function with alias reference', () => {
-			serverless.service.provider.compiledCloudFormationTemplate = snsStack1;
+			serverless.service.provider.compiledCloudFormationTemplate = s3Stack1;
 			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasStack1;
-			return expect(awsAlias.aliasHandleSNSEvents({}, [], {})).to.be.fulfilled
+			return expect(awsAlias.aliasHandleS3Events({}, [], {})).to.be.fulfilled
 			.then(() => BbPromise.all([
-				expect(aliasStack).to.not.have.property('SNSTopicSlstestprojecttopic')
-				.that.has.deep.property('Properties.Subscription[0].Endpoint')
-				.that.deep.equals({ Ref: 'Testfct1Alias' }),
+				expect(aliasStack).to.have.deep.property('Resources.S3BucketBucket')
+				.that.has.deep.property('Properties.NotificationConfiguration.LambdaConfigurations[0].Function')
+				.that.deep.equals({ Ref: 'LoadAlias' }),
 			]));
 		});
 	});
