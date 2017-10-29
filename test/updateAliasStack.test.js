@@ -3,14 +3,14 @@
  * Unit tests for createAliasStack..
  */
 
-const getInstalledPath = require('get-installed-path');
+const { getInstalledPathSync } = require('get-installed-path');
 const BbPromise = require('bluebird');
 const chai = require('chai');
 const sinon = require('sinon');
 const path = require('path');
 const AWSAlias = require('../index');
 
-const serverlessPath = getInstalledPath.sync('serverless', { local: true });
+const serverlessPath = getInstalledPathSync('serverless', { local: true });
 const AwsProvider = require(`${serverlessPath}/lib/plugins/aws/provider/awsProvider`);
 const Serverless = require(`${serverlessPath}/lib/Serverless`);
 

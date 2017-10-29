@@ -3,14 +3,14 @@
  * Unit tests for SNS events.
  */
 
-const getInstalledPath = require('get-installed-path');
+const { getInstalledPathSync } = require('get-installed-path');
 const _ = require('lodash');
 const BbPromise = require('bluebird');
 const chai = require('chai');
 const sinon = require('sinon');
 const AWSAlias = require('../../index');
 
-const serverlessPath = getInstalledPath.sync('serverless', { local: true });
+const serverlessPath = getInstalledPathSync('serverless', { local: true });
 const AwsProvider = require(`${serverlessPath}/lib/plugins/aws/provider/awsProvider`);
 const Serverless = require(`${serverlessPath}/lib/Serverless`);
 
@@ -74,10 +74,10 @@ describe('SNS Events', () => {
 			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasStack1;
 			return expect(awsAlias.aliasHandleSNSEvents({}, [], {})).to.be.fulfilled
 			.then(() => BbPromise.all([
-				expect(snsStack).to.not.have.property('SNSTopicSlstestprojecttopic'),
-				expect(snsStack).to.not.have.property('Testfct1LambdaPermissionSlstestprojecttopicSNS'),
-				expect(aliasStack).to.not.have.property('SNSTopicSlstestprojecttopic'),
-				expect(aliasStack).to.not.have.property('Testfct1LambdaPermissionSlstestprojecttopicSNS'),
+				expect(snsStack).to.not.have.a.nested.property('Resources.SNSTopicSlstestprojecttopic'),
+				expect(snsStack).to.not.have.a.nested.property('Resources.Testfct1LambdaPermissionSlstestprojecttopicSNS'),
+				expect(aliasStack).to.have.a.nested.property('Resources.SNSTopicSlstestprojecttopic'),
+				expect(aliasStack).to.have.a.nested.property('Resources.Testfct1LambdaPermissionSlstestprojecttopicSNS'),
 			]));
 		});
 
@@ -85,11 +85,10 @@ describe('SNS Events', () => {
 			serverless.service.provider.compiledCloudFormationTemplate = snsStack1;
 			const aliasStack = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasStack1;
 			return expect(awsAlias.aliasHandleSNSEvents({}, [], {})).to.be.fulfilled
-			.then(() => BbPromise.all([
-				expect(aliasStack).to.not.have.property('SNSTopicSlstestprojecttopic')
-				.that.has.deep.property('Properties.Subscription[0].Endpoint')
-				.that.deep.equals({ Ref: 'Testfct1Alias' }),
-			]));
+			.then(() => expect(aliasStack).to.have.a.nested.property('Resources.SNSTopicSlstestprojecttopic')
+				.that.has.a.nested.property('Properties.Subscription[0].Endpoint')
+				.that.deep.equals({ Ref: 'Testfct1Alias' })
+			);
 		});
 	});
 });

@@ -3,12 +3,12 @@
  * Unit tests for validate.
  */
 
-const getInstalledPath = require('get-installed-path');
+const { getInstalledPathSync } = require('get-installed-path');
 const BbPromise = require('bluebird');
 const chai = require('chai');
 const AWSAlias = require('../index');
 
-const serverlessPath = getInstalledPath.sync('serverless', { local: true });
+const serverlessPath = getInstalledPathSync('serverless', { local: true });
 const AwsProvider = require(`${serverlessPath}/lib/plugins/aws/provider/awsProvider`);
 const Serverless = require(`${serverlessPath}/lib/Serverless`);
 

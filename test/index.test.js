@@ -4,12 +4,12 @@
  */
 
 const BbPromise = require('bluebird');
-const getInstalledPath = require('get-installed-path');
+const { getInstalledPathSync } = require('get-installed-path');
 const chai = require('chai');
 const sinon = require('sinon');
 const AwsAlias = require('../index');
 
-const serverlessPath = getInstalledPath.sync('serverless', { local: true });
+const serverlessPath = getInstalledPathSync('serverless', { local: true });
 const AwsProvider = require(`${serverlessPath}/lib/plugins/aws/provider/awsProvider`);
 const Serverless = require(`${serverlessPath}/lib/Serverless`);
 
@@ -72,7 +72,7 @@ describe('AwsAlias', () => {
 			getCommandStub.returns(command);
 			const awsAlias = new AwsAlias(serverless);
 			expect(awsAlias).to.be.an('object');
-			expect(command).to.have.deep.property('commands.api');
+			expect(command).to.have.nested.property('commands.api');
 		});
 	});
 

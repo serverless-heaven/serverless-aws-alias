@@ -3,14 +3,14 @@
  * Unit tests for SNS events.
  */
 
-const getInstalledPath = require('get-installed-path');
+const { getInstalledPathSync } = require('get-installed-path');
 const BbPromise = require('bluebird');
 const _ = require('lodash');
 const chai = require('chai');
 const sinon = require('sinon');
 const AWSAlias = require('../../index');
 
-const serverlessPath = getInstalledPath.sync('serverless', { local: true });
+const serverlessPath = getInstalledPathSync('serverless', { local: true });
 const AwsProvider = require(`${serverlessPath}/lib/plugins/aws/provider/awsProvider`);
 const Serverless = require(`${serverlessPath}/lib/Serverless`);
 
@@ -71,10 +71,10 @@ describe('API Gateway', () => {
 			const stage = createStageResource('apiRef', 'deployment');
 
 			expect(stage).to.have.a.property('Type', 'AWS::ApiGateway::Stage');
-			expect(stage).to.have.a.deep.property('Properties.StageName', 'myAlias');
-			expect(stage).to.have.a.deep.property('Properties.DeploymentId').that.is.an('object').that.deep.equals({ Ref: 'deployment' });
-			expect(stage).to.have.a.deep.property('Properties.RestApiId').that.is.an('object').that.deep.equals({ 'Fn::ImportValue': 'apiRef' });
-			expect(stage).to.have.a.deep.property('Properties.Variables').that.is.an('object').that.containSubset({ SERVERLESS_ALIAS: 'myAlias' });
+			expect(stage).to.have.a.nested.property('Properties.StageName', 'myAlias');
+			expect(stage).to.have.a.nested.property('Properties.DeploymentId').that.is.an('object').that.deep.equals({ Ref: 'deployment' });
+			expect(stage).to.have.a.nested.property('Properties.RestApiId').that.is.an('object').that.deep.equals({ 'Fn::ImportValue': 'apiRef' });
+			expect(stage).to.have.a.nested.property('Properties.Variables').that.is.an('object').that.containSubset({ SERVERLESS_ALIAS: 'myAlias' });
 		});
 
 		it('should set general stage configuration', () => {
@@ -84,8 +84,8 @@ describe('API Gateway', () => {
 			};
 
 			const stage = createStageResource('apiRef', 'deployment');
-			expect(stage).to.have.a.deep.property('Properties.CacheClusterEnabled', true);
-			expect(stage).to.have.a.deep.property('Properties.CacheClusterSize', 2);
+			expect(stage).to.have.a.nested.property('Properties.CacheClusterEnabled', true);
+			expect(stage).to.have.a.nested.property('Properties.CacheClusterSize', 2);
 		});
 
 		it('should omit cacheClusterSize if not given', () => {
@@ -94,7 +94,7 @@ describe('API Gateway', () => {
 			};
 
 			const stage = createStageResource('apiRef', 'deployment');
-			expect(stage).to.not.have.a.deep.property('Properties.CacheClusterSize');
+			expect(stage).to.not.have.a.nested.property('Properties.CacheClusterSize');
 		});
 
 		it('should throw on invalid configuration keys', () => {
@@ -251,7 +251,7 @@ describe('API Gateway', () => {
 			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
 
 			const stage = createStageResource('apiRef', 'deployment');
-			expect(stage).to.have.a.deep.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
+			expect(stage).to.have.a.nested.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
 		});
 
 		it('should prefer function config', () => {
@@ -339,7 +339,7 @@ describe('API Gateway', () => {
 			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
 
 			const stage = createStageResource('apiRef', 'deployment');
-			expect(stage).to.have.a.deep.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
+			expect(stage).to.have.a.nested.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
 		});
 
 		it('should prefer event config', () => {
@@ -436,7 +436,7 @@ describe('API Gateway', () => {
 			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
 
 			const stage = createStageResource('apiRef', 'deployment');
-			expect(stage).to.have.a.deep.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
+			expect(stage).to.have.a.nested.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
 		});
 
 		it('should not set AWS default values', () => {
@@ -509,7 +509,7 @@ describe('API Gateway', () => {
 			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
 
 			const stage = createStageResource('apiRef', 'deployment');
-			expect(stage).to.have.a.deep.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
+			expect(stage).to.have.a.nested.property('Properties.MethodSettings').that.deep.equals(expectedMethodSettings);
 		});
 
 		it('should not set stage config without actual configuration', () => {
@@ -555,7 +555,7 @@ describe('API Gateway', () => {
 			awsAlias.serverless.service = new awsAlias.serverless.classes.Service(awsAlias.serverless, service);
 
 			const stage = createStageResource('apiRef', 'deployment');
-			expect(stage).to.not.have.a.deep.property('Properties.MethodSettings');
+			expect(stage).to.not.have.a.nested.property('Properties.MethodSettings');
 		});
 	});
 
@@ -582,9 +582,9 @@ describe('API Gateway', () => {
 				serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
 				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
 				.then(() => BbPromise.all([
-					expect(template).to.not.have.a.deep.property('Resources.TestauthApiGatewayAuthorizer'),
-					expect(template).to.have.a.deep.property('Resources.TestauthApiGatewayAuthorizermyAlias')
-						.that.has.a.deep.property("Properties.AuthorizerUri")
+					expect(template).to.not.have.a.nested.property('Resources.TestauthApiGatewayAuthorizer'),
+					expect(template).to.have.a.nested.property('Resources.TestauthApiGatewayAuthorizermyAlias')
+						.that.has.a.nested.property("Properties.AuthorizerUri")
 						.that.deep.equals({
 							"Fn::Join": [
 								"",
@@ -605,7 +605,7 @@ describe('API Gateway', () => {
 								]
 							]
 						}),
-					expect(template).to.have.a.deep.property('Resources.CognitoTestApiGatewayAuthorizermyAlias')
+					expect(template).to.have.a.nested.property('Resources.CognitoTestApiGatewayAuthorizermyAlias')
 						.that.deep.equals(cogAuth)
 				]));
 			});
@@ -616,10 +616,10 @@ describe('API Gateway', () => {
 				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
 				.then(() => BbPromise.all([
 					expect(template)
-						.to.have.a.deep.property("Resources.ApiGatewayMethodFunc1Get.Properties.AuthorizerId")
+						.to.have.a.nested.property("Resources.ApiGatewayMethodFunc1Get.Properties.AuthorizerId")
 							.that.deep.equals({ Ref: "TestauthApiGatewayAuthorizermyAlias" }),
 					expect(template)
-						.to.have.a.deep.property("Resources.ApiGatewayMethodFunc1Get.DependsOn")
+						.to.have.a.nested.property("Resources.ApiGatewayMethodFunc1Get.DependsOn")
 							.that.equals("TestauthApiGatewayAuthorizermyAlias")
 				]));
 			});
@@ -632,7 +632,7 @@ describe('API Gateway', () => {
 				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
 				.then(() => BbPromise.all([
 					expect(template)
-						.to.have.a.deep.property("Resources.ApiGatewayMethodFunc1Get.DependsOn")
+						.to.have.a.nested.property("Resources.ApiGatewayMethodFunc1Get.DependsOn")
 							.that.deep.equals([ "myDep1", "myDep2", "TestauthApiGatewayAuthorizermyAlias" ])
 				]));
 			});
@@ -653,9 +653,9 @@ describe('API Gateway', () => {
 				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
 				.then(() => BbPromise.all([
 					expect(template)
-						.to.have.a.deep.property("Resources.TestauthApiGatewayAuthorizermyAlias.Properties.AuthorizerResultTtlInSeconds")
+						.to.have.a.nested.property("Resources.TestauthApiGatewayAuthorizermyAlias.Properties.AuthorizerResultTtlInSeconds")
 							.that.equals(100),
-					expect(serverless).to.not.have.a.deep.property('service.resources.Resources.TestauthApiGatewayAuthorizer'),
+					expect(serverless).to.not.have.a.nested.property('service.resources.Resources.TestauthApiGatewayAuthorizer'),
 				]));
 			});
 

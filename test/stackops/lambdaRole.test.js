@@ -3,13 +3,13 @@
  * Unit tests for lambda role transformations.
  */
 
-const getInstalledPath = require('get-installed-path');
+const { getInstalledPathSync } = require('get-installed-path');
 const _ = require('lodash');
 const chai = require('chai');
 const sinon = require('sinon');
 const AWSAlias = require('../../index');
 
-const serverlessPath = getInstalledPath.sync('serverless', { local: true });
+const serverlessPath = getInstalledPathSync('serverless', { local: true });
 const AwsProvider = require(`${serverlessPath}/lib/plugins/aws/provider/awsProvider`);
 const Serverless = require(`${serverlessPath}/lib/Serverless`);
 
@@ -96,7 +96,7 @@ describe('lambdaRole', () => {
 			};
 			const stackTemplate = serverless.service.provider.compiledCloudFormationTemplate = stack;
 			return expect(awsAlias.aliasHandleLambdaRole(currentTemplate, aliasTemplates, {})).to.be.fulfilled
-			.then(() => expect(stackTemplate).to.have.a.deep.property('Resources.IamRoleLambdaExecutiontestAlias'));
+			.then(() => expect(stackTemplate).to.have.a.nested.property('Resources.IamRoleLambdaExecutiontestAlias'));
 		});
 
 	});
