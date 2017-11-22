@@ -223,6 +223,17 @@ describe('API Gateway', () => {
 							}
 						]
 					},
+					functionC: {
+						handler: 'functionB.handler',
+						events: [
+							{
+								http: {
+									method: 'ANY',
+									path: '/funcC'
+								}
+							},
+						]
+					},
 				}
 			};
 			const expectedMethodSettings = [
@@ -245,6 +256,41 @@ describe('API Gateway', () => {
 					LoggingLevel: 'INFO',
 					HttpMethod: 'UPDATE',
 					ResourcePath: '/~1funcB~1update'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'DELETE',
+					ResourcePath: '/~1funcC'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'GET',
+					ResourcePath: '/~1funcC'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'HEAD',
+					ResourcePath: '/~1funcC'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'OPTIONS',
+					ResourcePath: '/~1funcC'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'PATCH',
+					ResourcePath: '/~1funcC'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'POST',
+					ResourcePath: '/~1funcC'
+				},
+				{
+					LoggingLevel: 'INFO',
+					HttpMethod: 'PUT',
+					ResourcePath: '/~1funcC'
 				},
 			];
 
