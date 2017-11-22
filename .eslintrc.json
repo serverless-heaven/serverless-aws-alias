@@ -10,7 +10,6 @@
     "plugin:import/errors",
     "plugin:import/warnings"
   ],
-  "installedESLint": true,
   "plugins": [
     "promise",
     "lodash",
@@ -19,7 +18,10 @@
   "rules": {
     "indent": [
       "error",
-      "tab"
+      "tab",
+      {
+        "MemberExpression": "off"
+      }
     ],
     "linebreak-style": [
       "error",

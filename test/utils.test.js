@@ -2,6 +2,7 @@
 /**
  * Unit tests for utils.
  */
+const _ = require('lodash');
 const chai = require('chai');
 const Utils = require('../lib/utils');
 
@@ -240,6 +241,44 @@ describe('Utils', function() {
 						"ref": "Ref"
 					}
 				]);
+		});
+	});
+
+	describe('#normalizeAliasForLogicalId()', () => {
+		it('should do nothing if alias is compliant or nil', () => {
+			const values = [
+				'aValidAlias',
+				'myAlias0123',
+				null,
+				undefined
+			];
+			_.forEach(values, value => {
+				expect(Utils.normalizeAliasForLogicalId(value)).to.equal(value);
+			});
+		});
+
+		it('should throw on invalid characters', () => {
+			const values = [
+				'aValid$Alias',
+				'my#Alias0123',
+				'n*ull',
+				'alias~233'
+			];
+			_.forEach(values, value => {
+				expect(() => Utils.normalizeAliasForLogicalId(value))
+					.to.throw(/^Unsupported character/);
+			});
+		});
+
+		it('should replace all supported characters', () => {
+			const values = {
+				a_Valid_Alias: 'aUscoreValidUscoreAlias',
+				'my-Alias0123': 'myDashAlias0123',
+				'a+different_one': 'aPlusdifferentUscoreone',
+			};
+			_.forOwn(values, (value, alias) => {
+				expect(Utils.normalizeAliasForLogicalId(alias)).to.equal(value);
+			});
 		});
 	});
 });

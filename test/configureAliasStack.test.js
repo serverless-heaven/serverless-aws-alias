@@ -3,14 +3,14 @@
  * Unit tests for configureAliasStack.
  */
 
-const getInstalledPath = require('get-installed-path');
+const { getInstalledPathSync } = require('get-installed-path');
 const _ = require('lodash');
 const BbPromise = require('bluebird');
 const chai = require('chai');
 const sinon = require('sinon');
 const AWSAlias = require('../index');
 
-const serverlessPath = getInstalledPath.sync('serverless', { local: true });
+const serverlessPath = getInstalledPathSync('serverless', { local: true });
 const AwsProvider = require(`${serverlessPath}/lib/plugins/aws/provider/awsProvider`);
 const Serverless = require(`${serverlessPath}/lib/Serverless`);
 
@@ -69,13 +69,13 @@ describe('configureAliasStack', () => {
 			return expect(awsAlias.validate()).to.be.fulfilled
 			.then(() => expect(awsAlias.configureAliasStack()).to.be.fulfilled)
 			.then(() => BbPromise.all([
-				expect(cfTemplate).to.have.deep.property('Outputs.ServerlessAliasReference.Value', 'REFERENCE'),
-				expect(cfTemplate).to.have.deep.property('Outputs.ServerlessAliasReference.Export.Name', 'testService-myStage-ServerlessAliasReference'),
+				expect(cfTemplate).to.have.nested.property('Outputs.ServerlessAliasReference.Value', 'REFERENCE'),
+				expect(cfTemplate).to.have.nested.property('Outputs.ServerlessAliasReference.Export.Name', 'testService-myStage-ServerlessAliasReference'),
 				expect(serverless.service.provider.compiledCloudFormationAliasTemplate)
 					.to.have.property('Description')
 					.that.matches(/Alias stack for .* \(.*\)/),
 				expect(serverless.service.provider.compiledCloudFormationAliasTemplate)
-					.to.have.deep.property('Outputs.ServerlessAliasName.Value', 'myAlias'),
+					.to.have.nested.property('Outputs.ServerlessAliasName.Value', 'myAlias'),
 			]));
 		});
 	});
