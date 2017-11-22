@@ -468,6 +468,11 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.5.1
+  * Support prewarmup with the warmup plugin [#72](https://github.com/HyperBrain/serverless-aws-alias/issues/72)
+	* Support `_ - +` in alias names [#68](https://github.com/HyperBrain/serverless-aws-alias/issues/68)
+	* Support ANY method type with stage configuration [#80](https://github.com/HyperBrain/serverless-aws-alias/issues/80)
+
 * 1.5.0
   * Support `serverless deploy function` [#29](https://github.com/HyperBrain/serverless-aws-alias/issues/29)
 
