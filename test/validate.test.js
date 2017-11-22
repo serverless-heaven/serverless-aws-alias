@@ -56,6 +56,11 @@ describe('#validate()', () => {
 		]));
 	});
 
+	it('should set SERVERLESS_ALIAS', () => {
+		return expect(awsAlias.validate()).to.eventually.be.fulfilled
+		.then(() => expect(process.env.SERVERLESS_ALIAS).to.equal('myStage'));
+	});
+
 	it('should succeed', () => {
 		return expect(awsAlias.validate()).to.eventually.be.fulfilled;
 	});
