@@ -23,7 +23,7 @@ describe('logs', () => {
 	let sandbox;
 	let providerRequestStub;
 	let logStub;
-	let aliasGetAliasFunctionVersionsStub;
+	let aliasGetAliasLatestFunctionVersionByFunctionNameStub;
 	let aliasStacksDescribeResourceStub;
 
 	before(() => {
@@ -45,7 +45,7 @@ describe('logs', () => {
 		awsAlias = new AWSAlias(serverless, options);
 		providerRequestStub = sandbox.stub(awsAlias._provider, 'request');
 		logStub = sandbox.stub(serverless.cli, 'log');
-		aliasGetAliasFunctionVersionsStub = sandbox.stub(awsAlias, 'aliasGetAliasFunctionVersions');
+		aliasGetAliasLatestFunctionVersionByFunctionNameStub = sandbox.stub(awsAlias, 'aliasGetAliasLatestFunctionVersionByFunctionName');
 		aliasStacksDescribeResourceStub = sandbox.stub(awsAlias, 'aliasStacksDescribeResource');
 
 		logStub.returns();
@@ -206,12 +206,7 @@ describe('logs', () => {
 				],
 			};
 			providerRequestStub.resolves(streamReply);
-			aliasGetAliasFunctionVersionsStub.returns(BbPromise.resolve([
-				{
-					functionName: 'func1',
-					functionVersion: '20'
-				}
-			]));
+			aliasGetAliasLatestFunctionVersionByFunctionNameStub.returns(BbPromise.resolve('20'));
 			awsAlias._lambdaName = 'func1';
 
 			return expect(awsAlias.logsGetLogStreams()).to.be.fulfilled
@@ -239,7 +234,7 @@ describe('logs', () => {
 
 		it('should throw error if no log streams found', () => {
 			providerRequestStub.resolves();
-			aliasGetAliasFunctionVersionsStub.returns(BbPromise.resolve([]));
+			aliasGetAliasLatestFunctionVersionByFunctionNameStub.returns(BbPromise.resolve(null));
 
 			return expect(awsAlias.logsGetLogStreams()).to.be.rejectedWith("");
 		});
