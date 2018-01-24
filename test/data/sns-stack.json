@@ -250,6 +250,24 @@
         ]
       }
     },
+    "SNSTopicSubscriptionSlstestprojecttopic": {
+      "Type" : "AWS::SNS::Subscription",
+      "Properties": {
+        "Endpoint": {
+          "Fn::GetAtt": [
+            "Testfct1LambdaFunction",
+            "Arn"
+          ]
+        },
+        "Protocol": "lambda",
+        "TopicArn": {
+          "Fn::GetAtt": [
+            "SNSTopicSlstestprojecttopic",
+            "Arn"
+          ]
+        }
+      }
+    },
     "Testfct1LambdaPermissionSlstestprojecttopicSNS": {
       "Type": "AWS::Lambda::Permission",
       "Properties": {

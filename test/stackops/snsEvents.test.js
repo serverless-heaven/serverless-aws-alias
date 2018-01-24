@@ -75,8 +75,10 @@ describe('SNS Events', () => {
 			return expect(awsAlias.aliasHandleSNSEvents({}, [], {})).to.be.fulfilled
 			.then(() => BbPromise.all([
 				expect(snsStack).to.not.have.a.nested.property('Resources.SNSTopicSlstestprojecttopic'),
+                expect(snsStack).to.not.have.a.nested.property('Resources.SNSTopicSubscriptionSlstestprojecttopic'),
 				expect(snsStack).to.not.have.a.nested.property('Resources.Testfct1LambdaPermissionSlstestprojecttopicSNS'),
 				expect(aliasStack).to.have.a.nested.property('Resources.SNSTopicSlstestprojecttopic'),
+                expect(aliasStack).to.have.a.nested.property('Resources.SNSTopicSubscriptionSlstestprojecttopic'),
 				expect(aliasStack).to.have.a.nested.property('Resources.Testfct1LambdaPermissionSlstestprojecttopicSNS'),
 			]));
 		});
