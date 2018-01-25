@@ -622,6 +622,26 @@ describe('API Gateway', () => {
 			});
 
 			it('should handle only Lambda authorizers', () => {
+				const authorizeUriTemplate = {
+					"Fn::Join": [
+						"",
+						[
+							"arn:aws:apigateway:",
+							{
+								"Ref": "AWS::Region"
+							},
+							":lambda:path/2015-03-31/functions/",
+							{
+								"Fn::GetAtt": [
+									"TestauthLambdaFunction",
+									"Arn"
+								]
+							},
+							":${stageVariables.SERVERLESS_ALIAS}",
+							"/invocations"
+						]
+					]
+				};
 				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
 				const cogAuth = _.cloneDeep(template.Resources.CognitoTestApiGatewayAuthorizer);
 				cogAuth.Properties.Name += "-myAlias";
@@ -629,28 +649,13 @@ describe('API Gateway', () => {
 				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
 				.then(() => BbPromise.all([
 					expect(template).to.not.have.a.nested.property('Resources.TestauthApiGatewayAuthorizer'),
+					expect(template).to.not.have.a.nested.property('Resources.TestauthApiGatewayRequestAuthorizer'),
 					expect(template).to.have.a.nested.property('Resources.TestauthApiGatewayAuthorizermyAlias')
 						.that.has.a.nested.property("Properties.AuthorizerUri")
-						.that.deep.equals({
-							"Fn::Join": [
-								"",
-								[
-									"arn:aws:apigateway:",
-									{
-										"Ref": "AWS::Region"
-									},
-									":lambda:path/2015-03-31/functions/",
-									{
-										"Fn::GetAtt": [
-											"TestauthLambdaFunction",
-											"Arn"
-										]
-									},
-									":${stageVariables.SERVERLESS_ALIAS}",
-									"/invocations"
-								]
-							]
-						}),
+						.that.deep.equals(authorizeUriTemplate),
+					expect(template).to.have.a.nested.property('Resources.TestauthApiGatewayRequestAuthorizermyAlias')
+						.that.has.a.nested.property("Properties.AuthorizerUri")
+						.that.deep.equals(authorizeUriTemplate),
 					expect(template).to.have.a.nested.property('Resources.CognitoTestApiGatewayAuthorizermyAlias')
 						.that.deep.equals(cogAuth)
 				]));
