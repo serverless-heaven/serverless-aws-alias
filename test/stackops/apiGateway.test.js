@@ -642,6 +642,7 @@ describe('API Gateway', () => {
 						]
 					]
 				};
+
 				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
 				const cogAuth = _.cloneDeep(template.Resources.CognitoTestApiGatewayAuthorizer);
 				cogAuth.Properties.Name += "-myAlias";
@@ -659,6 +660,44 @@ describe('API Gateway', () => {
 					expect(template).to.have.a.nested.property('Resources.CognitoTestApiGatewayAuthorizermyAlias')
 						.that.deep.equals(cogAuth)
 				]));
+			});
+
+			it('should support externally referenced custom authorizers', () => {
+				stackTemplate = _.cloneDeep(require('../data/auth-stack-2.json'));
+				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
+				const compiledAliasTemplate = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
+				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
+				.then(() => BbPromise.all([
+					expect(template)
+						.to.have.a.nested.property("Resources.ApiGatewayMethodFunc1Get.Properties.AuthorizerId")
+							.that.deep.equals({ Ref: "TestauthApiGatewayAuthorizermyAlias" }),
+					expect(template)
+						.to.have.a.nested.property("Resources.ApiGatewayMethodFunc1Get.DependsOn")
+							.that.equals("TestauthApiGatewayAuthorizermyAlias"),
+					expect(template)
+						.to.have.a.nested.property('Resources.TestauthApiGatewayAuthorizermyAlias.Properties.AuthorizerUri')
+							.that.deep.equals({
+								"Fn::Join": [
+									"",
+									[
+										"arn:aws:apigateway:",
+										{
+											"Ref": "AWS::Region"
+										},
+										":lambda:path/2015-03-31/functions/",
+										"arn:aws:lambda:us-east-1:",
+										{
+											"Ref": "AWS::AccountId"
+										},
+										":function:custom-auth",
+										"/invocations"
+									]
+								]}),
+					expect(compiledAliasTemplate)
+						.to.have.a.nested.property('Resources.TestauthLambdaPermissionApiGateway.DependsOn')
+							.that.is.empty
+				]));
+
 			});
 
 			it('should transform string dependencies and references to authorizers', () => {
