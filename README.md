@@ -468,6 +468,10 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.6.0
+ * Fixed issue with request authorizers [#96](https://github.com/HyperBrain/serverless-aws-alias/issues/96)
+ * Support subscription to existing SNS topic [#94](https://github.com/HyperBrain/serverless-aws-alias/issues/94)
+
 * 1.5.1
   * Support prewarmup with the warmup plugin [#72](https://github.com/HyperBrain/serverless-aws-alias/issues/72)
 	* Support `_ - +` in alias names [#68](https://github.com/HyperBrain/serverless-aws-alias/issues/68)
