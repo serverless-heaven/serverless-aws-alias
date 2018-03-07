@@ -177,6 +177,9 @@ class AwsAlias {
 			logCommand.options.alias = {
 				usage: 'Alias'
 			};
+			logCommand.options.version = {
+				usage: 'Logs a specific version of the function'
+			};
 			logCommand.commands = _.assign({}, logCommand.commands, {
 				api: {
 					usage: 'Output the logs of a deployed APIG stage (alias)',
