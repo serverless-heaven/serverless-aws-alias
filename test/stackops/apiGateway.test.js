@@ -699,6 +699,39 @@ describe('API Gateway', () => {
 				]));
 
 			});
+			
+			it('should support externally referenced custom authorizers with Pseudo Parameters', () => {
+				stackTemplate = _.cloneDeep(require('../data/auth-stack-2.json'));
+				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
+				const compiledAliasTemplate = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
+				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
+				.then(() => BbPromise.all([
+					expect(template)
+						.to.have.a.nested.property("Resources.ApiGatewayMethodFunc2Get.Properties.AuthorizerId")
+							.that.deep.equals({ Ref: "PseudoParamCustomAuthApiGatewayAuthorizermyAlias" }),
+					expect(template)
+						.to.have.a.nested.property("Resources.ApiGatewayMethodFunc2Get.DependsOn")
+							.that.equals("PseudoParamCustomAuthApiGatewayAuthorizermyAlias"),
+					expect(template)
+						.to.have.a.nested.property('Resources.PseudoParamCustomAuthApiGatewayAuthorizermyAlias.Properties.AuthorizerUri')
+							.that.deep.equals({
+								"Fn::Join": [
+									"",
+									[
+										"arn:aws:apigateway:",
+										{
+											"Ref": "AWS::Region"
+										},
+										":lambda:path/2015-03-31/functions/",
+										{
+											"Fn::Sub": "arn:aws:lambda:us-east-1:${AWS::AccountId}:function:custom-auth"
+										},
+										"/invocations"
+									]
+								]}),
+				]));
+
+			});
 
 			it('should transform string dependencies and references to authorizers', () => {
 				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
