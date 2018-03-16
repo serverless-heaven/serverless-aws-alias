@@ -177,19 +177,20 @@ describe('AwsAlias', () => {
 		});
 
 		it('after:aws:deploy:deploy:uploadArtifacts should resolve', () => {
-			setBucketNameStub.returns(BbPromise.resolve());
-			uploadAliasArtifactsStub.returns(BbPromise.resolve());
-			return expect(awsAlias.hooks['after:aws:deploy:deploy:uploadArtifacts']()).to.eventually.be.fulfilled
-			.then(() => BbPromise.join(
-				expect(setBucketNameStub).to.be.calledOnce,
-				expect(uploadAliasArtifactsStub).to.be.calledOnce
-			));
+			return expect(awsAlias.hooks['after:aws:deploy:deploy:uploadArtifacts']()).to.eventually.be.fulfilled;
 		});
 
 		it('after:aws:deploy:deploy:updateStack should resolve', () => {
+			setBucketNameStub.returns(BbPromise.resolve());
+			uploadAliasArtifactsStub.returns(BbPromise.resolve());
 			updateAliasStackStub.returns(BbPromise.resolve());
 			return expect(awsAlias.hooks['after:aws:deploy:deploy:updateStack']()).to.eventually.be.fulfilled
-			.then(() => expect(updateAliasStackStub).to.be.calledOnce);
+			.then(() => {
+				expect(setBucketNameStub).to.be.calledOnce;
+				expect(uploadAliasArtifactsStub).to.be.calledOnce;
+				expect(updateAliasStackStub).to.be.calledOnce;
+				return null;
+			});
 		});
 
 		it('after:info:info should resolve', () => {
