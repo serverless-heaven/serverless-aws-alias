@@ -468,6 +468,10 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.6.1
+ * Fixed custom authorizer references [#102](https://github.com/HyperBrain/serverless-aws-alias/pull/102)
+ * Fixed broken DynamoDB stream deployments [#85](https://github.com/HyperBrain/serverless-aws-alias/issues/85)
+
 * 1.6.0
  * Fixed issue with request authorizers [#96](https://github.com/HyperBrain/serverless-aws-alias/issues/96)
  * Support subscription to existing SNS topic [#94](https://github.com/HyperBrain/serverless-aws-alias/issues/94)
