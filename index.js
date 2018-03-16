@@ -5,20 +5,21 @@
  */
 
 const BbPromise = require('bluebird')
-		, _ = require('lodash')
-		, Path = require('path')
-		, validate = require('./lib/validate')
-		, configureAliasStack = require('./lib/configureAliasStack')
-		, createAliasStack = require('./lib/createAliasStack')
-		, updateAliasStack = require('./lib/updateAliasStack')
-		, aliasRestructureStack = require('./lib/aliasRestructureStack')
-		, stackInformation = require('./lib/stackInformation')
-		, listAliases = require('./lib/listAliases')
-		, removeAlias = require('./lib/removeAlias')
-		, logs = require('./lib/logs')
-		, collectUserResources = require('./lib/collectUserResources')
-		, uploadAliasArtifacts = require('./lib/uploadAliasArtifacts')
-		, updateFunctionAlias = require('./lib/updateFunctionAlias');
+	, _ = require('lodash')
+	, Path = require('path')
+	, validate = require('./lib/validate')
+	, configureAliasStack = require('./lib/configureAliasStack')
+	, createAliasStack = require('./lib/createAliasStack')
+	, updateAliasStack = require('./lib/updateAliasStack')
+	, aliasRestructureStack = require('./lib/aliasRestructureStack')
+	, stackInformation = require('./lib/stackInformation')
+	, listAliases = require('./lib/listAliases')
+	, removeAlias = require('./lib/removeAlias')
+	, logs = require('./lib/logs')
+	, collectUserResources = require('./lib/collectUserResources')
+	, uploadAliasArtifacts = require('./lib/uploadAliasArtifacts')
+	, updateFunctionAlias = require('./lib/updateFunctionAlias')
+	, deferredOutputs = require('./lib/deferredOutputs');
 
 class AwsAlias {
 
@@ -40,18 +41,18 @@ class AwsAlias {
 		 * Load stack helpers from Serverless installation.
 		 */
 		const monitorStack = require(
-		Path.join(this._serverless.config.serverlessPath,
-			'plugins',
-			'aws',
-			'lib',
-			'monitorStack')
+			Path.join(this._serverless.config.serverlessPath,
+				'plugins',
+				'aws',
+				'lib',
+				'monitorStack')
 		);
 		const setBucketName = require(
-		Path.join(this._serverless.config.serverlessPath,
-			'plugins',
-			'aws',
-			'lib',
-			'setBucketName')
+			Path.join(this._serverless.config.serverlessPath,
+				'plugins',
+				'aws',
+				'lib',
+				'setBucketName')
 		);
 
 		_.assign(
@@ -69,7 +70,8 @@ class AwsAlias {
 			uploadAliasArtifacts,
 			updateFunctionAlias,
 			setBucketName,
-			monitorStack
+			monitorStack,
+			deferredOutputs
 		);
 
 		this._commands = {
@@ -116,10 +118,11 @@ class AwsAlias {
 				.then(this.createAliasStack),
 
 			'after:aws:deploy:deploy:uploadArtifacts': () => BbPromise.bind(this)
-				.then(this.setBucketName)
-				.then(this.uploadAliasArtifacts),
+				.then(() => BbPromise.resolve()),
 
 			'after:aws:deploy:deploy:updateStack': () => BbPromise.bind(this)
+				.then(this.setBucketName)
+				.then(this.uploadAliasArtifacts)
 				.then(this.updateAliasStack),
 
 			'before:deploy:function:initialize': () => BbPromise.bind(this)
