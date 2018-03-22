@@ -749,6 +749,7 @@ describe('API Gateway', () => {
 									BasePath: '(none)',
 									DomainName: 'example.com',
 									RestApiId: { 'Fn::ImportValue': 'testService-myStage-ApiGatewayRestApi' },
+									StageName: { Ref: 'ApiGatewayStage' },
 									Stage: 'test'
 								}
 							})
