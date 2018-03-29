@@ -713,7 +713,7 @@ describe('API Gateway', () => {
 						.to.have.a.nested.property("Resources.ApiGatewayMethodFunc2Get.DependsOn")
 							.that.equals("PseudoParamCustomAuthApiGatewayAuthorizermyAlias"),
 					expect(template)
-						.to.have.a.nested.property('Resources.PseudoParamCustomAuthApiGatewayAuthorizermyAlias.Properties.AuthorizerUri')
+					.to.have.a.nested.property('Resources.PseudoParamCustomAuthApiGatewayAuthorizermyAlias.Properties.AuthorizerUri')
 							.that.deep.equals({
 								"Fn::Join": [
 									"",
@@ -729,6 +729,29 @@ describe('API Gateway', () => {
 										"/invocations"
 									]
 								]}),
+				]));
+
+			});
+
+			it('should move base mappings to alias stack', () => {
+				stackTemplate = _.cloneDeep(require('../data/auth-stack-2.json'));
+				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
+				const compiledAliasTemplate = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
+				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
+				.then(()=> BbPromise.all([
+					expect(template)
+						.to.not.have.a.nested.property('Resources.pathmapping'),
+					expect(aliasTemplate)
+						.to.have.a.nested.property('Resources.pathmapping')
+							.that.deep.equals({
+								Type: 'AWS::ApiGateway::BasePathMapping',
+								Properties: {
+									BasePath: '(none)',
+									DomainName: 'example.com',
+									RestApiId: { 'Fn::ImportValue': 'testService-myStage-ApiGatewayRestApi' },
+									Stage: { Ref: 'ApiGatewayStage' }
+								}
+							})
 				]));
 
 			});

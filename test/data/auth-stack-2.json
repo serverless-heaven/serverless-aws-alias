@@ -464,6 +464,15 @@
         }
       }
     },
+    "pathmapping": {
+      "Type": "AWS::ApiGateway::BasePathMapping",
+      "Properties": {
+        "BasePath": "(none)",
+        "DomainName": "example.com", 
+        "RestApiId": { "Fn::ImportValue": "ApiGatewayRestApi" },
+        "Stage": "test"
+      }
+    },
     "TestauthLambdaPermissionApiGateway": {
       "Type": "AWS::Lambda::Permission",
       "Properties": {
