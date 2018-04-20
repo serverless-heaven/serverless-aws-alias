@@ -468,6 +468,12 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.7.0
+	* Support existing custom authorizers [#101](https://github.com/HyperBrain/serverless-aws-alias/issues/101)
+	* Support domain-manager plugin [#110](https://github.com/HyperBrain/serverless-aws-alias/issues/110)
+	* Support pseudo-parameter plugin [#112](https://github.com/HyperBrain/serverless-aws-alias/issues/112)
+	* Show logs from arbitrary versions [#62](https://github.com/HyperBrain/serverless-aws-alias/issues/62), [#89](https://github.com/HyperBrain/serverless-aws-alias/issues/89)
+
 * 1.6.1
  * Fixed custom authorizer references [#102](https://github.com/HyperBrain/serverless-aws-alias/pull/102)
  * Fixed broken DynamoDB stream deployments [#85](https://github.com/HyperBrain/serverless-aws-alias/issues/85)
