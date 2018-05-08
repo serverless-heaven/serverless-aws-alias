@@ -169,16 +169,16 @@ describe('Utils', function() {
 			expect(Utils.findAllReferences(testRoot))
 				.to.deep.equal([
 					{
-						"path": "other",
-						"ref": "Ref#4"
+						'path': 'other',
+						'ref': 'Ref#4'
 					},
 					{
-						"path": "items[1].otherTestItem.prop2",
-						"ref": "Ref#3"
+						'path': 'items[1].otherTestItem.prop2',
+						'ref': 'Ref#3'
 					},
 					{
-						"path": "items[1].otherTestItem.prop1.arrayTest[0]",
-						"ref": "Ref#2"
+						'path': 'items[1].otherTestItem.prop1.arrayTest[0]',
+						'ref': 'Ref#2'
 					}
 				]);
 		});
@@ -225,20 +225,20 @@ describe('Utils', function() {
 			expect(Utils.findAllReferences(testRoot))
 				.to.deep.equal([
 					{
-						"path": "other",
-						"ref": "Ref#4"
+						'path': 'other',
+						'ref': 'Ref#4'
 					},
 					{
-						"path": "items[1].otherTestItem.prop2",
-						"ref": "Ref#3"
+						'path': 'items[1].otherTestItem.prop2',
+						'ref': 'Ref#3'
 					},
 					{
-						"path": "items[1].otherTestItem.prop1.arrayTest[0]",
-						"ref": "Ref#2"
+						'path': 'items[1].otherTestItem.prop1.arrayTest[0]',
+						'ref': 'Ref#2'
 					},
 					{
-						"path": "items[0].testItem",
-						"ref": "Ref"
+						'path': 'items[0].testItem',
+						'ref': 'Ref'
 					}
 				]);
 		});
@@ -279,6 +279,154 @@ describe('Utils', function() {
 			_.forOwn(values, (value, alias) => {
 				expect(Utils.normalizeAliasForLogicalId(alias)).to.equal(value);
 			});
+		});
+	});
+
+	describe('#hasPermissionPrincipal()', () => {
+		it('should work with string principals', () => {
+			const permission = {
+				'Type': 'AWS::Lambda::Permission',
+				'Properties': {
+					'FunctionName': {
+						'Fn::GetAtt': [
+							'MyLambdaLambdaFunction',
+							'Arn'
+						]
+					},
+					'Action': 'lambda:InvokeFunction',
+					'Principal': 'apigateway.amazonaws.com',
+					'SourceArn': {
+						'Fn::Join': [
+							'',
+							[
+								'arn:',
+								{
+									'Ref': 'AWS::Partition'
+								},
+								':execute-api:',
+								{
+									'Ref': 'AWS::Region'
+								},
+								':',
+								{
+									'Ref': 'AWS::AccountId'
+								},
+								':',
+								{
+									'Ref': 'ApiGatewayRestApi'
+								},
+								'/*/*'
+							]
+						]
+					}
+				}
+			};
+
+			expect(Utils.hasPermissionPrincipal(permission, 'apigateway')).to.be.true;
+		});
+
+		it('should work with constructed principals', () => {
+			const permission = {
+				'Type': 'AWS::Lambda::Permission',
+				'Properties': {
+					'FunctionName': {
+						'Fn::GetAtt': [
+							'MyLambdaLambdaFunction',
+							'Arn'
+						]
+					},
+					'Action': 'lambda:InvokeFunction',
+					'Principal': {
+						'Fn::Join': [
+							'',
+							[
+								'apigateway.',
+								{
+									'Ref': 'AWS::URLSuffix'
+								}
+							]
+						]
+					},
+					'SourceArn': {
+						'Fn::Join': [
+							'',
+							[
+								'arn:',
+								{
+									'Ref': 'AWS::Partition'
+								},
+								':execute-api:',
+								{
+									'Ref': 'AWS::Region'
+								},
+								':',
+								{
+									'Ref': 'AWS::AccountId'
+								},
+								':',
+								{
+									'Ref': 'ApiGatewayRestApi'
+								},
+								'/*/*'
+							]
+						]
+					}
+				}
+			};
+
+			expect(Utils.hasPermissionPrincipal(permission, 'apigateway')).to.be.true;
+		});
+
+		it ('should return false if the service is not matched', () => {
+			const permission = {
+				'Type': 'AWS::Lambda::Permission',
+				'Properties': {
+					'FunctionName': {
+						'Fn::GetAtt': [
+							'MyLambdaLambdaFunction',
+							'Arn'
+						]
+					},
+					'Action': 'lambda:InvokeFunction',
+					'Principal': {
+						'Fn::Join': [
+							'',
+							[
+								'apigateway.',
+								{
+									'Ref': 'AWS::URLSuffix'
+								}
+							]
+						]
+					},
+					'SourceArn': {
+						'Fn::Join': [
+							'',
+							[
+								'arn:',
+								{
+									'Ref': 'AWS::Partition'
+								},
+								':execute-api:',
+								{
+									'Ref': 'AWS::Region'
+								},
+								':',
+								{
+									'Ref': 'AWS::AccountId'
+								},
+								':',
+								{
+									'Ref': 'ApiGatewayRestApi'
+								},
+								'/*/*'
+							]
+						]
+					}
+				}
+			};
+
+			expect(Utils.hasPermissionPrincipal(permission, 'events')).to.be.false;
 		});
 	});
 });
