@@ -468,6 +468,9 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.7.1
+	* Restore compatibility with Serverless 1.27 [#120](https://github.com/HyperBrain/serverless-aws-alias/issues/120)
+
 * 1.7.0
 	* Support existing custom authorizers [#101](https://github.com/HyperBrain/serverless-aws-alias/issues/101)
 	* Support domain-manager plugin [#110](https://github.com/HyperBrain/serverless-aws-alias/issues/110)
