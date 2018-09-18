@@ -28,10 +28,20 @@ protecting the aliased function versions, and many more.
 ## Installation
 
 Add the plugin to your package.json's devDependencies and to the plugins array
-in your `serverless.yml` file. After installation the plugin will automatically
-hook into the deployment process.
-Additionally the new `alias` command is added to Serverless which offers some
-functionality for aliases.
+in your `serverless.yml` file
+
+Terminal:
+```
+npm install --save-dev serverless-aws-alias
+```
+
+serverless.yml:
+```
+plugins:
+  - serverless-aws-alias
+```
+
+After installation the plugin will automatically hook into the deployment process. Additionally the new `alias` command is added to Serverless which offers some functionality for aliases.
 
 ## Deploy the default alias
 
