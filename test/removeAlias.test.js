@@ -29,6 +29,7 @@ describe('removeAlias', () => {
 	let monitorStackStub;
 	let logStub;
 	let slsStack1;
+	let slsStackLarge;
 	let aliasStack1;
 	let aliasStack2;
 
@@ -53,6 +54,7 @@ describe('removeAlias', () => {
 		logStub = sandbox.stub(serverless.cli, 'log');
 
 		slsStack1 = _.cloneDeep(require('./data/sls-stack-1.json'));
+		slsStackLarge = _.cloneDeep(require('./data/sls-stack-large.json'));
 		aliasStack1 = _.cloneDeep(require('./data/alias-stack-1.json'));
 		aliasStack2 = _.cloneDeep(require('./data/alias-stack-2.json'));
 
@@ -67,12 +69,14 @@ describe('removeAlias', () => {
 		let aliasCreateStackChangesStub;
 		let aliasRemoveAliasStackStub;
 		let aliasApplyStackChangesStub;
+		let uploadCloudFormationTemplateStub;
 		let pluginManagerSpawnStub;
 
 		beforeEach(() => {
 			aliasApplyStackChangesStub = sandbox.stub(awsAlias, 'aliasApplyStackChanges');
 			aliasCreateStackChangesStub = sandbox.stub(awsAlias, 'aliasCreateStackChanges');
 			aliasRemoveAliasStackStub = sandbox.stub(awsAlias, 'aliasRemoveAliasStack');
+			uploadCloudFormationTemplateStub = sandbox.stub(awsAlias, 'uploadCloudFormationTemplate');
 			pluginManagerSpawnStub = sandbox.stub(awsAlias._serverless.pluginManager, 'spawn');
 		});
 
@@ -131,12 +135,14 @@ describe('removeAlias', () => {
 			aliasApplyStackChangesStub.returns([ slsStack1, [ aliasStack2 ], aliasStack1 ]);
 			aliasCreateStackChangesStub.returns([ slsStack1, [ aliasStack2 ], aliasStack1 ]);
 			aliasRemoveAliasStackStub.returns([ slsStack1, [ aliasStack2 ], aliasStack1 ]);
+			uploadCloudFormationTemplateStub.returns([ slsStack1, [ aliasStack2 ], aliasStack1, 'templateUrl' ]);
 
 			return expect(awsAlias.removeAlias(slsStack1, [ aliasStack2 ], aliasStack1)).to.be.fulfilled
 			.then(() => BbPromise.all([
 				expect(aliasCreateStackChangesStub).to.have.been.calledOnce,
 				expect(aliasRemoveAliasStackStub).to.have.been.calledOnce,
 				expect(aliasApplyStackChangesStub).to.have.been.calledOnce,
+				expect(uploadCloudFormationTemplateStub).to.have.been.calledOnce,
 				expect(pluginManagerSpawnStub).to.not.have.been.called,
 			]));
 		});
@@ -252,6 +258,22 @@ describe('removeAlias', () => {
 		.then(() => BbPromise.all([
 			expect(providerRequestStub).to.have.been.calledOnce,
 			expect(providerRequestStub.getCall(0).args[2]).to.containSubset({ StackPolicyBody: '{"Statement":[{"title":"myPolicy"}]}' }),
+		]));
+	});
+
+	it('should not upload to S3 if template size is < 51200', () => {
+		return expect(awsAlias.uploadCloudFormationTemplate(slsStack1, [ aliasStack2 ], aliasStack1)).to.be.fulfilled
+		.then(() => BbPromise.all([
+			expect(providerRequestStub).to.not.have.been.called,
+		]));
+	});
+
+	it('should upload to S3 only when the template is too big', () => {
+		providerRequestStub.returns(BbPromise.resolve({ status: 'ok' }));
+		return expect(awsAlias.uploadCloudFormationTemplate(slsStackLarge, [ aliasStack2 ], aliasStack1)).to.be.fulfilled
+		.then(() => BbPromise.all([
+			expect(providerRequestStub).to.have.been.calledOnce,
+			expect(providerRequestStub.getCall(0).args[1]).to.equal('putObject'),
 		]));
 	});
 });
