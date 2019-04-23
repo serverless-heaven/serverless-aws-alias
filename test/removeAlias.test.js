@@ -33,7 +33,7 @@ describe('removeAlias', () => {
 	let aliasStack2;
 
 	before(() => {
-		sandbox = sinon.sandbox.create();
+		sandbox = sinon.createSandbox();
 	});
 
 	beforeEach(() => {
