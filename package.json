@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:hyperbrain/serverless-aws-alias.git"
+    "url": "https://github.com/serverless-heaven/serverless-aws-alias"
   },
   "scripts": {
     "test": "nyc ./node_modules/mocha/bin/_mocha \"test/**/*.js\" -R spec --recursive",
@@ -23,9 +23,9 @@
     "aliases"
   ],
   "bugs": {
-    "url": "https://github.com/HyperBrain/serverless-aws-alias/issues"
+    "url": "https://github.com/serverless-heaven/serverless-aws-alias/issues"
   },
-  "homepage": "https://github.com/HyperBrain/serverless-aws-alias#readme",
+  "homepage": "https://github.com/serverless-heaven/serverless-aws-alias#readme",
   "nyc": {
     "exclude": [
       "test/**/*.*"
