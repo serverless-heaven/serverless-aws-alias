@@ -27,7 +27,7 @@ describe('SNS Events', () => {
 	let logStub;
 
 	before(() => {
-		sandbox = sinon.sandbox.create();
+		sandbox = sinon.createSandbox();
 	});
 
 	beforeEach(() => {
