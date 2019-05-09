@@ -33,7 +33,7 @@ describe('removeAlias', () => {
 	let aliasStack2;
 
 	before(() => {
-		sandbox = sinon.sandbox.create();
+		sandbox = sinon.createSandbox();
 	});
 
 	beforeEach(() => {
@@ -196,7 +196,7 @@ describe('removeAlias', () => {
 		});
 
 		it('should resolve if no updates are applied', () => {
-			providerRequestStub.returns(BbPromise.reject(new Error('No updates are to be performed.')));
+			providerRequestStub.rejects(new Error('No updates are to be performed.'));
 			monitorStackStub.returns(BbPromise.resolve());
 
 			return expect(awsAlias.aliasApplyStackChanges(slsStack1, [ aliasStack2 ], aliasStack1)).to.be.fulfilled

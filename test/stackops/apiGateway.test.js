@@ -28,7 +28,7 @@ describe('API Gateway', () => {
 	let logStub;
 
 	before(() => {
-		sandbox = sinon.sandbox.create();
+		sandbox = sinon.createSandbox();
 	});
 
 	beforeEach(() => {
@@ -699,7 +699,7 @@ describe('API Gateway', () => {
 				]));
 
 			});
-			
+
 			it('should support externally referenced custom authorizers with Pseudo Parameters', () => {
 				stackTemplate = _.cloneDeep(require('../data/auth-stack-2.json'));
 				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
