@@ -23,7 +23,7 @@ describe('AwsAlias', () => {
 	let sandbox;
 
 	before(() => {
-		sandbox = sinon.sandbox.create();
+		sandbox = sinon.createSandbox();
 	});
 
 	beforeEach(() => {
@@ -111,7 +111,7 @@ describe('AwsAlias', () => {
 		let apiLogsShowLogsStub;
 
 		before(() => {
-			sandbox = sinon.sandbox.create();
+			sandbox = sinon.createSandbox();
 			awsAlias = new AwsAlias(serverless, options);
 		});
 

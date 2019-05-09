@@ -29,7 +29,7 @@ describe('createAliasStack', () => {
 	let logStub;
 
 	before(() => {
-		sandbox = sinon.sandbox.create();
+		sandbox = sinon.createSandbox();
 	});
 
 	beforeEach(() => {
