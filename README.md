@@ -36,12 +36,17 @@ functionality for aliases.
 ## Deploy the default alias
 
 The default alias (for the stage) is deployed just by doing a standard stage
-deployment with `serverless deploy`. From now on you can reference the aliased
-versions on Lambda invokes with the stage qualifier. The aliased version is
-read only in the AWS console, so it is guaranteed that the environment and
-function parameters (memory, etc.) cannot be changed for a deployed version
-by accident, as it can be done with the `$LATEST` qualifier.
-This adds an additional level of stability to your deployment process.
+deployment with `serverless deploy`. By default the alias is set to the stage
+name. Optionally you can set the name of the default (master) alias using the
+option `--masterAlias`, e.g., `serverless deploy --masterAlias`. (If you have
+already created a serverless deployment without manually setting the default
+alias, this option should not be used.)
+From now on you can reference the aliased versions on Lambda invokes with the
+stage qualifier. The aliased version is read only in the AWS console, so it is
+guaranteed that the environment and function parameters (memory, etc.) cannot
+be changed for a deployed version by accident, as it can be done with the 
+`$LATEST` qualifier.This adds an additional level of stability to your deployment
+process.
 
 ## Deploy a single function
 

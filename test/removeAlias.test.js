@@ -90,7 +90,10 @@ describe('removeAlias', () => {
 
 		it('should error if an alias is deployed on stage removal', () => {
 			awsAlias._options = { alias: 'myStage' };
-			awsAlias._alias = 'myStage';
+			awsAlias._alias = 'master';
+			slsStack1.Outputs.MasterAliasName = {
+				Value: 'master'
+			};
 
 			expect(() => awsAlias.removeAlias(slsStack1, [ aliasStack1 ], aliasStack2)).to.throw(/myAlias/);
 			return BbPromise.all([
@@ -103,7 +106,10 @@ describe('removeAlias', () => {
 
 		it('should error if the master alias is not deployed on stage removal', () => {
 			awsAlias._options = { alias: 'myStage' };
-			awsAlias._alias = 'myStage';
+			awsAlias._alias = 'master';
+			slsStack1.Outputs.MasterAliasName = {
+				Value: 'master'
+			};
 
 			expect(() => awsAlias.removeAlias(slsStack1, [], {})).to.throw(/Internal error/);
 			return BbPromise.all([
@@ -116,7 +122,10 @@ describe('removeAlias', () => {
 
 		it('should remove alias and service stack on stage removal', () => {
 			awsAlias._options = { alias: 'myStage' };
-			awsAlias._alias = 'myStage';
+			awsAlias._alias = 'master';
+			slsStack1.Outputs.MasterAliasName = {
+				Value: 'master'
+			};
 
 			return expect(awsAlias.removeAlias(slsStack1, [], aliasStack2)).to.be.fulfilled
 			.then(() => BbPromise.all([
@@ -128,6 +137,9 @@ describe('removeAlias', () => {
 		});
 
 		it('should remove alias stack', () => {
+			slsStack1.Outputs.MasterAliasName = {
+				Value: 'master'
+			};
 			aliasApplyStackChangesStub.returns([ slsStack1, [ aliasStack2 ], aliasStack1 ]);
 			aliasCreateStackChangesStub.returns([ slsStack1, [ aliasStack2 ], aliasStack1 ]);
 			aliasRemoveAliasStackStub.returns([ slsStack1, [ aliasStack2 ], aliasStack1 ]);

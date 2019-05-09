@@ -322,6 +322,13 @@
           ]
         ]
       }
+    },
+    "MasterAliasName": {
+      "Description": "Master Alias name (serverless-aws-alias plugin)",
+      "Value": "master",
+      "Export": {
+        "Name": "sls-test-project-dev-master"
+      }
     }
   }
 }
