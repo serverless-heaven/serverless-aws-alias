@@ -262,7 +262,6 @@ describe('updateAliasStack', () => {
 		it('should resolve in case no updates are performed', () => {
 			providerRequestStub.returns(BbPromise.resolve("done"));
 			monitorStackStub.rejects(new Error('No updates are to be performed.'));
-
 			return expect(awsAlias.updateAlias()).to.be.fulfilled
 			.then(() => expect(providerRequestStub).to.have.been.calledOnce);
 		});
