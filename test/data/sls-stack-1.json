@@ -11,6 +11,12 @@
         "LogGroupName": "/aws/lambda/sls-test-project-dev-testfct1"
       }
     },
+    "Testfct1WithSuffixLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/sls-test-project-dev-testfct1-with-suffix"
+      }
+    },
     "WarmUpPluginLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
@@ -192,6 +198,70 @@
       "Properties": {
         "FunctionName": {
           "Ref": "Testfct1LambdaFunction"
+        },
+        "CodeSha256": "Wh5jTkiTR67+V05RPWQIlzPI25WiPbdHDYNgbtAMneU=",
+        "Description": "Echo function echoes alias"
+      }
+    },
+    "Testfct1WithSuffixLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/sls-test-project/dev/1494367071172-2017-05-09T21:57:51.172Z/sls-test-project.zip"
+        },
+        "FunctionName": "sls-test-project-dev-testfct1-with-suffix",
+        "Handler": "handlers/testfct1-with-suffix/handler.handle",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs4.3",
+        "Timeout": 15,
+        "Description": "Echo function echoes alias",
+        "Environment": {
+          "Variables": {
+            "SERVERLESS_PROJECT_NAME": "sls-test-project",
+            "SERVERLESS_PROJECT": "sls-test-project",
+            "SERVERLESS_STAGE": "dev",
+            "SERVERLESS_REGION": "us-east-1",
+            "TEST_TABLE_NAME": {
+              "Ref": "TestDynamoDbTable"
+            }
+          }
+        },
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::ImportValue": "stashimi-dev-PrivateSG"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Fn::ImportValue": "stashimi-dev-PrivateSubnet1"
+            },
+            {
+              "Fn::ImportValue": "stashimi-dev-PrivateSubnet2"
+            }
+          ]
+        }
+      },
+      "DependsOn": [
+        "Testfct1WithSuffixLogGroup",
+        "IamRoleLambdaExecution"
+      ]
+    },
+    "Testfct1WithSuffixLambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "Testfct1WithSuffixLambdaFunction"
         },
         "CodeSha256": "Wh5jTkiTR67+V05RPWQIlzPI25WiPbdHDYNgbtAMneU=",
         "Description": "Echo function echoes alias"
@@ -401,6 +471,104 @@
           ]
         }
       }
+    },
+    "ApiGatewayResourceFunc2": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "func1-with-suffix",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodFunc2Get": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceFunc2"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "Testfct1WithSuffixLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      }
+    },
+    "ApiGatewayDeployment1494367071212": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "StageName": "dev"
+      },
+      "DependsOn": [
+        "ApiGatewayMethodFunc2Get"
+      ]
+    },
+    "Testfct1WithSuffixLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "Testfct1WithSuffixLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
     }
   },
   "Outputs": {
@@ -413,6 +581,12 @@
       "Description": "Current Lambda function version",
       "Value": {
         "Ref": "Testfct1LambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU"
+      }
+    },
+    "Testfct1WithSuffixLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "Testfct1WithSuffixLambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU"
       }
     },
     "WarmUpPluginLambdaFunctionQualifiedArn": {
