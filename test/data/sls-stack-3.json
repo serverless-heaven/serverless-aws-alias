@@ -1,0 +1,430 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template for this Serverless application",
+  "Resources": {
+    "ServerlessDeploymentBucket": {
+      "Type": "AWS::S3::Bucket"
+    },
+    "Testfct1LogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/sls-test-project-dev-testfct1"
+      }
+    },
+    "WarmUpPluginLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/warmup-plugin-sls-test-project-dev"
+      }
+    },
+    "IamRoleLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "dev",
+                  "sls-test-project",
+                  "lambda"
+                ]
+              ]
+            },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sls-test-project-dev-testfct1:*"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/warmup-plugin-sls-test-project-dev:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sls-test-project-dev-testfct1:*:*"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/warmup-plugin-sls-test-project-dev:*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:*"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "/",
+                        [
+                          {
+                            "Fn::Join": [
+                              ":",
+                              [
+                                "arn:aws:dynamodb",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                {
+                                  "Ref": "AWS::AccountId"
+                                },
+                                "table"
+                              ]
+                            ]
+                          },
+                          {
+                            "Ref": "TestDynamoDbTable"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "Path": "/",
+        "RoleName": "custom-role-name",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+        ]
+      }
+    },
+    "Testfct1LambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/sls-test-project/dev/1494367071172-2017-05-09T21:57:51.172Z/sls-test-project.zip"
+        },
+        "FunctionName": "sls-test-project-dev-testfct1",
+        "Handler": "handlers/testfct1/handler.handle",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs4.3",
+        "Timeout": 15,
+        "Description": "Echo function echoes alias",
+        "Environment": {
+          "Variables": {
+            "SERVERLESS_PROJECT_NAME": "sls-test-project",
+            "SERVERLESS_PROJECT": "sls-test-project",
+            "SERVERLESS_STAGE": "dev",
+            "SERVERLESS_REGION": "us-east-1",
+            "TEST_TABLE_NAME": {
+              "Ref": "TestDynamoDbTable"
+            }
+          }
+        },
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::ImportValue": "stashimi-dev-PrivateSG"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Fn::ImportValue": "stashimi-dev-PrivateSubnet1"
+            },
+            {
+              "Fn::ImportValue": "stashimi-dev-PrivateSubnet2"
+            }
+          ]
+        }
+      },
+      "DependsOn": [
+        "Testfct1LogGroup",
+        "IamRoleLambdaExecution"
+      ]
+    },
+    "Testfct1LambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "Testfct1LambdaFunction"
+        },
+        "CodeSha256": "Wh5jTkiTR67+V05RPWQIlzPI25WiPbdHDYNgbtAMneU=",
+        "Description": "Echo function echoes alias"
+      }
+    },
+    "WarmUpPluginLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/sls-test-project/dev/1494367071172-2017-05-09T21:57:51.172Z/sls-test-project.zip"
+        },
+        "FunctionName": "warmup-plugin-sls-test-project-dev",
+        "Handler": "_warmup/index.warmUp",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 10,
+        "Description": "Serverless WarmUP Plugin",
+        "Environment": {
+          "Variables": {
+            "SERVERLESS_PROJECT_NAME": "sls-test-project",
+            "SERVERLESS_PROJECT": "sls-test-project",
+            "SERVERLESS_STAGE": "dev",
+            "SERVERLESS_REGION": "us-east-1",
+            "TEST_TABLE_NAME": {
+              "Ref": "TestDynamoDbTable"
+            }
+          }
+        },
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::ImportValue": "stashimi-dev-PrivateSG"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Fn::ImportValue": "stashimi-dev-PrivateSubnet1"
+            },
+            {
+              "Fn::ImportValue": "stashimi-dev-PrivateSubnet2"
+            }
+          ]
+        }
+      },
+      "DependsOn": [
+        "WarmUpPluginLogGroup",
+        "IamRoleLambdaExecution"
+      ]
+    },
+    "WarmUpPluginLambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "WarmUpPluginLambdaFunction"
+        },
+        "CodeSha256": "Wh5jTkiTR67+V05RPWQIlzPI25WiPbdHDYNgbtAMneU=",
+        "Description": "Serverless WarmUP Plugin"
+      }
+    },
+    "WarmUpPluginEventsRuleSchedule1": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "rate(5 minutes)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "WarmUpPluginLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Id": "warmUpPluginSchedule"
+          }
+        ]
+      }
+    },
+    "WarmUpPluginLambdaPermissionEventsRuleSchedule1": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "WarmUpPluginLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "WarmUpPluginEventsRuleSchedule1",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "ApiGatewayRestApi": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Name": "dev-sls-test-project"
+      }
+    },
+    "ApiGatewayResourceFunc1": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "func1",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodFunc1Get": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceFunc1"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "Testfct1LambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      }
+    },
+    "ApiGatewayDeployment1494367071211": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "StageName": "dev"
+      },
+      "DependsOn": [
+        "ApiGatewayMethodFunc1Get"
+      ]
+    },
+    "Testfct1LambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "Testfct1LambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ServerlessDeploymentBucketName": {
+      "Value": {
+        "Ref": "ServerlessDeploymentBucket"
+      }
+    },
+    "Testfct1LambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "Testfct1LambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU"
+      }
+    },
+    "WarmUpPluginLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "WarmUpPluginLambdaVersionWh5jTkiTR67V05RPWQIlzPI25WiPbdHDYNgbtAMneU"
+      }
+    },
+    "ServiceEndpoint": {
+      "Description": "URL of the service endpoint",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "ApiGatewayRestApi"
+            },
+            ".execute-api.us-east-1.amazonaws.com/dev"
+          ]
+        ]
+      }
+    }
+  }
+}
