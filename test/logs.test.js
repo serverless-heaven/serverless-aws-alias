@@ -27,7 +27,7 @@ describe('logs', () => {
 	let aliasStacksDescribeResourceStub;
 
 	before(() => {
-		sandbox = sinon.sandbox.create();
+		sandbox = sinon.createSandbox();
 	});
 
 	beforeEach(() => {
