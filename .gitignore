@@ -1,3 +1,14 @@
 /node_modules
-/coverage
-/.nyc_output
+
+# Jetbrains IDEs
+.idea/
+
+# Platform specific
+.DS_Store
+
+# Coverage directories used by tools like istanbul
+.nyc_output/
+coverage/
+
+# Code style tools
+.eslintcache
