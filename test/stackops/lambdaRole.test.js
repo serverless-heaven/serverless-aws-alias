@@ -99,5 +99,28 @@ describe('lambdaRole', () => {
 			.then(() => expect(stackTemplate).to.have.a.nested.property('Resources.IamRoleLambdaExecutiontestAlias'));
 		});
 
+		it('should retain custom stack roles', () => {
+			const aliasTemplates = [{
+				Resources: {},
+				Outputs: {
+					ServerlessAliasName: {
+						Description: 'The current alias',
+						Value: 'testAlias'
+					}
+				}
+			}];
+			const currentTemplate = {
+				Resources: {
+					IamRoleLambdaExecution: {},
+					IamRoleLambdaExecutiontestAlias: {}
+				},
+				Outputs: {}
+			};
+
+			const customRoleStack = _.cloneDeep(require('../data/sls-stack-3.json'));
+			const stackTemplate = serverless.service.provider.compiledCloudFormationTemplate = customRoleStack;
+			return expect(awsAlias.aliasHandleLambdaRole(currentTemplate, aliasTemplates, {})).to.be.fulfilled
+				.then(() => expect(stackTemplate).to.have.a.nested.property('Resources.IamRoleLambdaExecutiontestAlias'));
+		});
 	});
 });

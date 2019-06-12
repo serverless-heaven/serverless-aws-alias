@@ -56,6 +56,45 @@ describe('aliasRestructureStack', () => {
 		sandbox.restore();
 	});
 
+	describe('#addMasterAliasName', () => {
+		it('should add the master alias name as output from command line option', () => {
+			serverless.service.provider.compiledCloudFormationTemplate = _.cloneDeep({
+				Resources: {},
+				Outputs: {}
+			});
+			awsAlias._masterAlias = 'master'
+			return expect(awsAlias.addMasterAliasName()).to.be.fulfilled
+			.then(() =>
+				expect(serverless.service.provider.compiledCloudFormationTemplate.Outputs.MasterAliasName.Value)
+					.to.equal('master')
+			);
+		});
+
+		it('should add the master alias name as output from existing stack', () => {
+			const masterAliasStackOutput = {
+				MasterAliasName: {
+					Description: 'Master Alias name (serverless-aws-alias plugin)',
+      				Value: 'master',
+      				Export: {
+						Name: 'sls-test-project-dev-master'
+					}
+				}
+			};
+			const currentTemplate = {
+				Outputs: masterAliasStackOutput
+			};
+			serverless.service.provider.compiledCloudFormationTemplate = _.cloneDeep({
+				Resources: {},
+				Outputs: {}
+			});
+			return expect(awsAlias.addMasterAliasName(currentTemplate)).to.be.fulfilled
+			.then(() =>
+				expect(serverless.service.provider.compiledCloudFormationTemplate.Outputs.MasterAliasName.Value)
+					.to.equal('master')
+			);
+		});
+	});
+
 	describe('#aliasFinalize()', () => {
 		it('should stringify flags', () => {
 			serverless.service.provider.compiledCloudFormationAliasTemplate = {
@@ -85,6 +124,7 @@ describe('aliasRestructureStack', () => {
 		});
 
 		it('should propagate templates through all stack operations', () => {
+			const addMasterAliasNameSpy = sandbox.spy(awsAlias, 'addMasterAliasName');
 			const aliasInitSpy = sandbox.spy(awsAlias, 'aliasInit');
 			const aliasHandleUserResourcesSpy = sandbox.spy(awsAlias, 'aliasHandleUserResources');
 			const aliasHandleLambdaRoleSpy = sandbox.spy(awsAlias, 'aliasHandleLambdaRole');
@@ -102,6 +142,7 @@ describe('aliasRestructureStack', () => {
 			return expect(awsAlias.aliasRestructureStack(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate))
 				.to.be.fulfilled
 			.then(() => BbPromise.all([
+				expect(addMasterAliasNameSpy).to.have.been.calledWithExactly(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate),
 				expect(aliasInitSpy).to.have.been.calledWithExactly(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate),
 				expect(aliasHandleUserResourcesSpy).to.have.been.calledWithExactly(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate),
 				expect(aliasHandleLambdaRoleSpy).to.have.been.calledWithExactly(currentTemplate, [ aliasTemplate ], currentAliasStackTemplate),

@@ -1,6 +1,6 @@
 'use strict';
 /**
- * Unit tests for SNS events.
+ * Unit tests for API Gateway resources.
  */
 
 const { getInstalledPathSync } = require('get-installed-path');
@@ -608,8 +608,17 @@ describe('API Gateway', () => {
 	describe('#aliasHandleApiGateway()', () => {
 		it('should succeed with standard template', () => {
 			serverless.service.provider.compiledCloudFormationTemplate = require('../data/sls-stack-1.json');
-			serverless.service.provider.compiledCloudFormationAliasTemplate = require('../data/alias-stack-1.json');
-			return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled;
+			const compiledAliasTemplate = require('../data/alias-stack-1.json');
+			serverless.service.provider.compiledCloudFormationAliasTemplate = compiledAliasTemplate;
+			return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
+				.then(() => BbPromise.all([
+					expect(compiledAliasTemplate)
+						.to.have.a.nested.property('Resources.Testfct1LambdaPermissionApiGateway.Properties.FunctionName')
+						.that.deep.equals({ Ref: 'Testfct1Alias' }),
+					expect(compiledAliasTemplate)
+						.to.have.a.nested.property('Resources.Testfct1WithSuffixLambdaPermissionApiGateway.Properties.FunctionName')
+						.that.deep.equals({ Ref: 'Testfct1WithSuffixAlias' }),
+				]));
 		});
 
 		describe('authorizer transform', () => {
@@ -697,13 +706,12 @@ describe('API Gateway', () => {
 						.to.have.a.nested.property('Resources.TestauthLambdaPermissionApiGateway.DependsOn')
 							.that.is.empty
 				]));
-
 			});
 
 			it('should support externally referenced custom authorizers with Pseudo Parameters', () => {
 				stackTemplate = _.cloneDeep(require('../data/auth-stack-2.json'));
 				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
-				const compiledAliasTemplate = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
+				serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
 				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
 				.then(() => BbPromise.all([
 					expect(template)
@@ -736,7 +744,7 @@ describe('API Gateway', () => {
 			it('should move base mappings to alias stack', () => {
 				stackTemplate = _.cloneDeep(require('../data/auth-stack-2.json'));
 				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
-				const compiledAliasTemplate = serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
+				serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
 				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
 				.then(()=> BbPromise.all([
 					expect(template)
@@ -753,7 +761,6 @@ describe('API Gateway', () => {
 								}
 							})
 				]));
-
 			});
 
 			it('should transform string dependencies and references to authorizers', () => {
@@ -804,7 +811,6 @@ describe('API Gateway', () => {
 					expect(serverless).to.not.have.a.nested.property('service.resources.Resources.TestauthApiGatewayAuthorizer'),
 				]));
 			});
-
 		});
 	});
 });
