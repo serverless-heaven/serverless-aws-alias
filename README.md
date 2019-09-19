@@ -70,7 +70,7 @@ See the `alias remove` command below.
 
 ## Maintain versions
 
-By default, when you deploy, the version of the function gets assigned the retention policy of 'Delete'. This means any subsequent deploys will delete any version without an alias. This was done because you can no longer tell which alias it came from.
+By default, when you deploy, the version of the function gets assigned the retention policy of 'Delete'. This means any subsequent deploys will delete any version without an alias. This was done because each lambda version has its own stack. That stack can contain differences in not only the function code, but resources and events. When an alias is removed from a version and the version of the lambda is not deleted, it is no longer possible to tell which stack it came from and which resources/events it was meant to work with. Therefore versions without aliases will get deleted on subsequent deploys.
 
 There are usecases where retaining versions is less risky and as such, you can opt into retaining these versions by deploying with the `--retain` flag.
 
