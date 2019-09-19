@@ -44,7 +44,7 @@ alias, this option should not be used.)
 From now on you can reference the aliased versions on Lambda invokes with the
 stage qualifier. The aliased version is read only in the AWS console, so it is
 guaranteed that the environment and function parameters (memory, etc.) cannot
-be changed for a deployed version by accident, as it can be done with the 
+be changed for a deployed version by accident, as it can be done with the
 `$LATEST` qualifier.This adds an additional level of stability to your deployment
 process.
 
@@ -67,6 +67,12 @@ Example:
 ## Remove an alias
 
 See the `alias remove` command below.
+
+## Maintain versions
+
+By default, when you deploy, the version of the function gets assigned the retention policy of 'Delete'. This means any subsequent deploys will delete any version without an alias. This was done because you can no longer tell which alias it came from.
+
+There are usecases where retaining versions is less risky and as such, you can opt into retaining these versions by deploying with the `--retain` flag.
 
 ## Remove a service
 
