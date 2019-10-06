@@ -542,11 +542,9 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 * 1.1.0
   * Use stage variable in APIG [#40][link-40]
-
   * Fix tail logging [#42][link-42]
 
-
-* 1.0.0        Support "serverless logs" with aliases. First non-alpha!
+* 1.0.0 Support "serverless logs" with aliases. First non-alpha!
 
 [ico-serverless]: http://public.serverless.com/badges/v3.svg
 [ico-license]: https://img.shields.io/github/license/serverless-heaven/serverless-webpack.svg
@@ -562,7 +560,6 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 [link-build]: https://travis-ci.org/serverless-heaven/serverless-aws-alias
 [link-coverage]: https://coveralls.io/github/serverless-heaven/serverless-aws-alias?branch=master
 [link-contributors]: https://github.com/serverless-heaven/serverless-aws-alias/graphs/contributors
-
 
 [comment]: # (Referenced issues)
 
