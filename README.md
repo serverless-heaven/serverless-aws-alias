@@ -482,7 +482,7 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
-* 1.7.3
+* 1.8.0
   * Option to retain lambda function versions [#160][link-160]
   * **Breaking** drop Node.js 6 support [#161][link-161]
 
