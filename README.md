@@ -482,6 +482,10 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.7.3
+  * Option to retain lambda function versions [#160][link-160]
+  * **Breaking** drop Node.js 6 support [#161][link-161]
+
 * 1.7.2
   * Added support for Lambda custom roles [#87][link-87] [#88][link-88]
   * Added support for dash in alias name when creating api gateway authorizers [#140][link-140]
@@ -593,3 +597,5 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 [link-127]: https://github.com/serverless-heaven/serverless-aws-alias/issues/127
 [link-140]: https://github.com/serverless-heaven/serverless-aws-alias/issues/140
 [link-159]: https://github.com/serverless-heaven/serverless-aws-alias/issues/159
+[link-160]: https://github.com/serverless-heaven/serverless-aws-alias/issues/122
+[link-160]: https://github.com/serverless-heaven/serverless-aws-alias/pull/173
