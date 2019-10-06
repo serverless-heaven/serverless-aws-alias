@@ -598,4 +598,4 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 [link-140]: https://github.com/serverless-heaven/serverless-aws-alias/issues/140
 [link-159]: https://github.com/serverless-heaven/serverless-aws-alias/issues/159
 [link-160]: https://github.com/serverless-heaven/serverless-aws-alias/issues/122
-[link-160]: https://github.com/serverless-heaven/serverless-aws-alias/pull/173
+[link-161]: https://github.com/serverless-heaven/serverless-aws-alias/pull/173
