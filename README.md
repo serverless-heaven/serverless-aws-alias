@@ -54,7 +54,7 @@ alias, this option should not be used.)
 From now on you can reference the aliased versions on Lambda invokes with the
 stage qualifier. The aliased version is read only in the AWS console, so it is
 guaranteed that the environment and function parameters (memory, etc.) cannot
-be changed for a deployed version by accident, as it can be done with the 
+be changed for a deployed version by accident, as it can be done with the
 `$LATEST` qualifier.This adds an additional level of stability to your deployment
 process.
 
@@ -77,6 +77,12 @@ Example:
 ## Remove an alias
 
 See the `alias remove` command below.
+
+## Maintain versions
+
+By default, when you deploy, the version of the function gets assigned the retention policy of 'Delete'. This means any subsequent deploys will delete any version without an alias. This was done because each lambda version has its own stack. That stack can contain differences in not only the function code, but resources and events. When an alias is removed from a version and the version of the lambda is not deleted, it is no longer possible to tell which stack it came from and which resources/events it was meant to work with. Therefore versions without aliases will get deleted on subsequent deploys.
+
+There are usecases where retaining versions is less risky and as such, you can opt into retaining these versions by deploying with the `--retain` flag.
 
 ## Remove a service
 
@@ -486,14 +492,25 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 ## Version history
 
+* 1.8.0
+  * Option to retain lambda function versions [#160][link-160]
+  * **Breaking** drop Node.js 6 support [#161][link-161]
+
+* 1.7.2
+  * Added support for Lambda custom roles [#87][link-87] [#88][link-88]
+  * Added support for dash in alias name when creating api gateway authorizers [#140][link-140]
+  * Configurable master alias [#127][link-127]
+  * Fix for "functionnames" where "functionname" A starts with function name B [#159][link-159]
+  * Dependencies updated
+
 * 1.7.1
-	* Restore compatibility with Serverless 1.27 [#120][link-120]
+  * Restore compatibility with Serverless 1.27 [#120][link-120]
 
 * 1.7.0
-	* Support existing custom authorizers [#101][link-101]
-	* Support domain-manager plugin [#110][link-110]
-	* Support pseudo-parameter plugin [#112][link-112]
-	* Show logs from arbitrary versions [#62][link-62], [#89][link-89]
+  * Support existing custom authorizers [#101][link-101]
+  * Support domain-manager plugin [#110][link-110]
+  * Support pseudo-parameter plugin [#112][link-112]
+  * Show logs from arbitrary versions [#62][link-62], [#89][link-89]
 
 * 1.6.1
  * Fixed custom authorizer references [#102][link-102]
@@ -506,8 +523,8 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 * 1.5.1
   * Support prewarmup with the warmup plugin [#72][link-72]
-	* Support `_ - +` in alias names [#68][link-68]
-	* Support ANY method type with stage configuration [#80][link-80]
+  * Support `_ - +` in alias names [#68][link-68]
+  * Support ANY method type with stage configuration [#80][link-80]
 
 * 1.5.0
   * Support `serverless deploy function` [#29][link-29]
@@ -535,11 +552,9 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 
 * 1.1.0
   * Use stage variable in APIG [#40][link-40]
-
   * Fix tail logging [#42][link-42]
 
-
-* 1.0.0        Support "serverless logs" with aliases. First non-alpha!
+* 1.0.0 Support "serverless logs" with aliases. First non-alpha!
 
 [ico-serverless]: http://public.serverless.com/badges/v3.svg
 [ico-license]: https://img.shields.io/github/license/serverless-heaven/serverless-webpack.svg
@@ -555,7 +570,6 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 [link-build]: https://travis-ci.org/serverless-heaven/serverless-aws-alias
 [link-coverage]: https://coveralls.io/github/serverless-heaven/serverless-aws-alias?branch=master
 [link-contributors]: https://github.com/serverless-heaven/serverless-aws-alias/graphs/contributors
-
 
 [comment]: # (Referenced issues)
 
@@ -577,6 +591,8 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 [link-72]: https://github.com/serverless-heaven/serverless-aws-alias/issues/72
 [link-80]: https://github.com/serverless-heaven/serverless-aws-alias/issues/80
 [link-85]: https://github.com/serverless-heaven/serverless-aws-alias/issues/85
+[link-87]: https://github.com/serverless-heaven/serverless-aws-alias/issues/87
+[link-88]: https://github.com/serverless-heaven/serverless-aws-alias/issues/88
 [link-89]: https://github.com/serverless-heaven/serverless-aws-alias/issues/89
 [link-94]: https://github.com/serverless-heaven/serverless-aws-alias/issues/94
 [link-96]: https://github.com/serverless-heaven/serverless-aws-alias/issues/96
@@ -585,3 +601,8 @@ and _serverless.service.provider.deployedAliasTemplates[]_.
 [link-110]: https://github.com/serverless-heaven/serverless-aws-alias/issues/110
 [link-112]: https://github.com/serverless-heaven/serverless-aws-alias/issues/112
 [link-120]: https://github.com/serverless-heaven/serverless-aws-alias/issues/120
+[link-127]: https://github.com/serverless-heaven/serverless-aws-alias/issues/127
+[link-140]: https://github.com/serverless-heaven/serverless-aws-alias/issues/140
+[link-159]: https://github.com/serverless-heaven/serverless-aws-alias/issues/159
+[link-160]: https://github.com/serverless-heaven/serverless-aws-alias/issues/122
+[link-161]: https://github.com/serverless-heaven/serverless-aws-alias/pull/173
