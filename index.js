@@ -165,6 +165,7 @@ class AwsAlias {
 
 			'alias:remove:remove': () => BbPromise.bind(this)
 				.then(this.validate)
+				.then(this.setBucketName)
 				.then(this.aliasStackLoadCurrentCFStackAndDependencies)
 				.spread(this.removeAlias)
 		};
