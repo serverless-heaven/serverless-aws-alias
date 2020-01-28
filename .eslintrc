@@ -10,6 +10,9 @@ extends:
   - plugin:import/errors
   - plugin:import/warnings
 
+parserOptions:
+  ecmaVersion: 9
+
 plugins:
   - promise
   - lodash
@@ -19,8 +22,7 @@ rules:
   indent:
     - error
     - tab
-    -
-      MemberExpression: off
+    -   MemberExpression: off
   linebreak-style:
     - error
     - unix
@@ -42,6 +44,5 @@ rules:
   lodash/prop-shorthand: off
   lodash/prefer-lodash-method:
     - error
-    -
-      ignoreObjects:
-        - BbPromise
+    -   ignoreObjects:
+          - BbPromise

@@ -7,5 +7,5 @@ end_of_line = lf
 charset = utf-8
 
 [*.{json,yml}]
-indent_style = space
+indent_style = tab
 indent_size = 2
