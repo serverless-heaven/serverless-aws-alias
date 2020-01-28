@@ -748,9 +748,11 @@ describe('API Gateway', () => {
 				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
 				.then(()=> BbPromise.all([
 					expect(template)
-						.to.not.have.a.nested.property('Resources.pathmapping'),
+						.to.not.have.a.nested.property('Resources.pathmapping1'),
+					expect(template)
+						.to.not.have.a.nested.property('Resources.pathmapping2'),
 					expect(aliasTemplate)
-						.to.have.a.nested.property('Resources.pathmapping')
+						.to.have.a.nested.property('Resources.pathmapping1')
 							.that.deep.equals({
 								Type: 'AWS::ApiGateway::BasePathMapping',
 								Properties: {
@@ -758,9 +760,154 @@ describe('API Gateway', () => {
 									DomainName: 'example.com',
 									RestApiId: { 'Fn::ImportValue': 'testService-myStage-ApiGatewayRestApi' },
 									Stage: { Ref: 'ApiGatewayStage' }
-								}
+								},
+								DependsOn:[]
+							}),
+					expect(aliasTemplate)
+						.to.have.a.nested.property('Resources.pathmapping2')
+							.that.deep.equals({
+								Type: 'AWS::ApiGateway::BasePathMapping',
+								Properties: {
+									BasePath: '/bp2',
+									DomainName: 'example.com',
+									RestApiId: { 'Fn::ImportValue': 'testService-myStage-ApiGatewayRestApi' },
+									Stage: { Ref: 'ApiGatewayStage' }
+								},
+								DependsOn:[]
 							})
 				]));
+			});
+
+			it('should move api keys to alias stack', () => {
+				stackTemplate = _.cloneDeep(require('../data/auth-stack-2.json'));
+				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
+				serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
+				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
+					.then(()=> BbPromise.all([
+						expect(template)
+							.to.not.have.a.nested.property('Resources.ApiGatewayApiKey1'),
+						expect(aliasTemplate)
+							.to.have.a.nested.property('Resources.ApiGatewayApiKey1')
+								.that.deep.equals( {
+									Type: 'AWS::ApiGateway::ApiKey',
+									Properties: {
+										Enabled: true,
+										Name: 'key1',
+										StageKeys: [
+											{
+												RestApiId: {
+													'Fn::ImportValue': 'testService-myStage-ApiGatewayRestApi'
+												},
+												StageName: 'myAlias'
+											}
+										]
+									},
+									DependsOn: [
+										'ApiGatewayDeployment1496754891256', 
+										'ApiGatewayStage'
+									]
+								}),
+						expect(aliasTemplate)
+							.to.have.a.nested.property('Resources.ApiGatewayApiKey2')
+								.that.deep.equals( {
+									Type: 'AWS::ApiGateway::ApiKey',
+									Properties: {
+										Enabled: true,
+										Name: 'key2',
+										StageKeys: [
+											{
+												RestApiId: {
+													'Fn::ImportValue': 'testService-myStage-ApiGatewayRestApi'
+												},
+												StageName: 'myAlias'
+											}
+										]
+									},
+									DependsOn: [
+										'ApiGatewayDeployment1496754891256',
+										'ApiGatewayStage'
+									]
+								})
+					]));
+			});
+
+			it('should move usage plans to alias stack', () => {
+				stackTemplate = _.cloneDeep(require('../data/auth-stack-2.json'));
+				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
+				serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
+				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
+					.then(()=> BbPromise.all([
+						expect(template)
+							.to.not.have.a.nested.property('Resources.ApiGatewayUsagePlan'),
+						expect(aliasTemplate)
+							.to.have.a.nested.property('Resources.ApiGatewayUsagePlan')
+							.that.deep.equals( {
+								Type: 'AWS::ApiGateway::UsagePlan',
+								DependsOn: [
+									'ApiGatewayDeployment1496754891256',
+									'ApiGatewayStage'
+								],
+								Properties: {
+									ApiStages: [
+										{
+											ApiId: {
+												'Fn::ImportValue': 'testService-myStage-ApiGatewayRestApi'
+											},
+											Stage: 'myAlias'
+										}
+									],
+									Description: 'plan1 description',
+									UsagePlanName: 'plan1',
+									Throttle: {
+										BurstLimit: 1,
+										RateLimit: 1
+									}
+								}
+							})
+					]));
+			});
+
+			it('should move api usage plan keys to alias stack', () => {
+				stackTemplate = _.cloneDeep(require('../data/auth-stack-2.json'));
+				const template = serverless.service.provider.compiledCloudFormationTemplate = stackTemplate;
+				serverless.service.provider.compiledCloudFormationAliasTemplate = aliasTemplate;
+				return expect(awsAlias.aliasHandleApiGateway({}, [], {})).to.be.fulfilled
+					.then(()=> BbPromise.all([
+						expect(template)
+							.to.not.have.a.nested.property('Resources.ApiGatewayUsagePlanKey1'),
+						expect(template)
+							.to.not.have.a.nested.property('Resources.ApiGatewayUsagePlanKey2'),
+						expect(aliasTemplate)
+							.to.have.a.nested.property('Resources.ApiGatewayUsagePlanKey1')
+							.that.deep.equals({
+								Type: 'AWS::ApiGateway::UsagePlanKey',
+								Properties: {
+									KeyId: {
+										Ref: 'ApiGatewayApiKey1'
+									},
+									KeyType: 'API_KEY',
+									UsagePlanId: {
+										Ref: 'ApiGatewayUsagePlan'
+									}
+								},
+								DependsOn: []
+							}),
+						expect(aliasTemplate)
+							.to.have.a.nested.property('Resources.ApiGatewayUsagePlanKey2')
+								.that.deep.equals({
+									Type: 'AWS::ApiGateway::UsagePlanKey',
+									Properties: {
+										KeyId: {
+											Ref: 'ApiGatewayApiKey2'
+										},
+										KeyType: 'API_KEY',
+										UsagePlanId: {
+											Ref: 'ApiGatewayUsagePlan'
+										}
+									},
+									DependsOn: []
+								})
+					]));
 			});
 
 			it('should transform string dependencies and references to authorizers', () => {

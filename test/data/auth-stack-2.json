@@ -464,15 +464,103 @@
         }
       }
     },
-    "pathmapping": {
-      "Type": "AWS::ApiGateway::BasePathMapping",
-      "Properties": {
-        "BasePath": "(none)",
-        "DomainName": "example.com", 
-        "RestApiId": { "Fn::ImportValue": "ApiGatewayRestApi" },
-        "Stage": "test"
-      }
-    },
+    "pathmapping1": {
+			"Type": "AWS::ApiGateway::BasePathMapping",
+			"Properties": {
+				"BasePath": "(none)",
+				"DomainName": "example.com",
+				"RestApiId": { "Fn::ImportValue": "ApiGatewayRestApi" },
+				"Stage": "test"
+			}
+		},
+		"pathmapping2": {
+			"Type": "AWS::ApiGateway::BasePathMapping",
+			"Properties": {
+				"BasePath": "/bp2",
+				"DomainName": "example.com",
+				"RestApiId": { "Fn::ImportValue": "ApiGatewayRestApi" },
+				"Stage": "test"
+			}
+		},
+		"ApiGatewayApiKey1": {
+			"Type": "AWS::ApiGateway::ApiKey",
+			"Properties": {
+				"Enabled": true,
+				"Name": "key1",
+				"StageKeys": [
+					{
+						"RestApiId": {
+							"Ref": "ApiGatewayRestApi"
+						},
+						"StageName": "dev"
+					}
+				]
+			},
+			"DependsOn": "ApiGatewayDeployment1496754891256"
+		},
+		"ApiGatewayApiKey2": {
+			"Type": "AWS::ApiGateway::ApiKey",
+			"Properties": {
+				"Enabled": true,
+				"Name": "key2",
+				"StageKeys": [
+					{
+						"RestApiId": {
+							"Ref": "ApiGatewayRestApi"
+						},
+						"StageName": "dev"
+					}
+				]
+			},
+			"DependsOn": "ApiGatewayDeployment1496754891256"
+		},
+		"ApiGatewayUsagePlan": {
+			"Type": "AWS::ApiGateway::UsagePlan",
+			"DependsOn": "ApiGatewayDeployment1496754891256",
+			"Properties": {
+				"ApiStages": [
+					{
+						"ApiId": {
+							"Ref": "ApiGatewayRestApi"
+						},
+						"Stage": "dev"
+					}
+				],
+				"Description": "plan1 description",
+				"UsagePlanName": "plan1",
+				"Throttle": {
+					"BurstLimit": 1,
+					"RateLimit": 1
+				}
+			}
+		},
+		"ApiGatewayUsagePlanKey1": {
+			"Type": "AWS::ApiGateway::UsagePlanKey",
+			"Properties": {
+				"KeyId": {
+					"Ref": "ApiGatewayApiKey1"
+				},
+				"KeyType": "API_KEY",
+				"UsagePlanId": {
+					"Ref": "ApiGatewayUsagePlan"
+				}
+			}
+		},
+		"ApiGatewayUsagePlanKey2": {
+			"Type": "AWS::ApiGateway::UsagePlanKey",
+			"Properties": {
+				"KeyId": {
+					"Ref": "ApiGatewayApiKey2"
+				},
+				"KeyType": "API_KEY",
+				"UsagePlanId": {
+					"Ref": "ApiGatewayUsagePlan"
+				}
+			}
+		},
+
+
+
     "TestauthLambdaPermissionApiGateway": {
       "Type": "AWS::Lambda::Permission",
       "Properties": {
