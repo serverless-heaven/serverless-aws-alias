@@ -24,6 +24,7 @@ rules:
   linebreak-style:
     - error
     - unix
+  no-trailing-spaces: error
   semi:
     - error
     - always
