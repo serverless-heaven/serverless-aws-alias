@@ -37,27 +37,27 @@
     "report-dir": "./coverage"
   },
   "dependencies": {
-    "bluebird": "^3.7.0",
-    "chalk": "^2.4.2",
+    "bluebird": "^3.7.2",
+    "chalk": "^3.0.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "os": "^0.1.1",
-    "semver": "^6.3.0"
+    "semver": "^7.1.3"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
-    "coveralls": "^3.0.6",
-    "eslint": "^6.5.1",
-    "eslint-plugin-import": "^2.18.2",
+    "coveralls": "^3.0.11",
+    "eslint": "^6.8.0",
+    "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-lodash": "^6.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "get-installed-path": "^4.0.8",
-    "mocha": "^6.2.1",
-    "nyc": "^14.1.1",
-    "serverless": "^1.53.0",
-    "sinon": "^7.5.0",
-    "sinon-chai": "^3.3.0"
+    "mocha": "^7.1.1",
+    "nyc": "^15.0.0",
+    "serverless": "^1.67.0",
+    "sinon": "^9.0.1",
+    "sinon-chai": "^3.5.0"
   }
 }
