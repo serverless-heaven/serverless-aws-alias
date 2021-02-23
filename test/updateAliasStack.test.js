@@ -84,7 +84,7 @@ describe('updateAliasStack', () => {
 				expect(providerRequestStub).to.have.been.calledOnce,
 				expect(monitorStackStub).to.have.been.calledOnce,
 				expect(providerRequestStub).to.have.been
-					.calledWithExactly('CloudFormation', 'createStack', expectedCFData, 'myStage', 'us-east-1'),
+					.calledWithExactly('CloudFormation', 'createStack', expectedCFData),
 				expect(monitorStackStub).to.have.been
 					.calledWithExactly('create', requestResult)
 			]));
@@ -119,7 +119,7 @@ describe('updateAliasStack', () => {
 			.then(() => BbPromise.all([
 				expect(providerRequestStub).to.have.been.calledOnce,
 				expect(providerRequestStub).to.have.been
-					.calledWithExactly('CloudFormation', 'createStack', expectedCFData, 'myStage', 'us-east-1'),
+					.calledWithExactly('CloudFormation', 'createStack', expectedCFData),
 			]));
 		});
 
@@ -147,7 +147,7 @@ describe('updateAliasStack', () => {
 			.then(() => BbPromise.all([
 				expect(providerRequestStub).to.have.been.calledOnce,
 				expect(providerRequestStub).to.have.been
-					.calledWithExactly('CloudFormation', 'createStack', expectedCFData, 'myStage', 'us-east-1'),
+					.calledWithExactly('CloudFormation', 'createStack', expectedCFData),
 			]));
 		});
 
@@ -186,7 +186,7 @@ describe('updateAliasStack', () => {
 				expect(providerRequestStub).to.have.been.calledOnce,
 				expect(monitorStackStub).to.have.been.calledOnce,
 				expect(providerRequestStub).to.have.been
-					.calledWithExactly('CloudFormation', 'updateStack', expectedCFData, 'myStage', 'us-east-1'),
+					.calledWithExactly('CloudFormation', 'updateStack', expectedCFData),
 				expect(monitorStackStub).to.have.been
 					.calledWithExactly('update', requestResult)
 			]));
@@ -220,7 +220,7 @@ describe('updateAliasStack', () => {
 			.then(() => BbPromise.all([
 				expect(providerRequestStub).to.have.been.calledOnce,
 				expect(providerRequestStub).to.have.been
-					.calledWithExactly('CloudFormation', 'updateStack', expectedCFData, 'myStage', 'us-east-1'),
+					.calledWithExactly('CloudFormation', 'updateStack', expectedCFData),
 			]));
 		});
 
@@ -247,7 +247,7 @@ describe('updateAliasStack', () => {
 			.then(() => BbPromise.all([
 				expect(providerRequestStub).to.have.been.calledOnce,
 				expect(providerRequestStub).to.have.been
-					.calledWithExactly('CloudFormation', 'updateStack', expectedCFData, 'myStage', 'us-east-1'),
+					.calledWithExactly('CloudFormation', 'updateStack', expectedCFData),
 			]));
 		});
 
