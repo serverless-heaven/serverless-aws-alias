@@ -9,7 +9,7 @@ const chai = require('chai');
 const AWSAlias = require('../index');
 
 const serverlessPath = getInstalledPathSync('serverless', { local: true });
-const AwsProvider = require(`${serverlessPath}/lib/plugins/aws/provider/awsProvider`);
+const AwsProvider = require(`${serverlessPath}/lib/plugins/aws/provider`);
 const Serverless = require(`${serverlessPath}/lib/Serverless`);
 
 chai.use(require('chai-as-promised'));
@@ -34,16 +34,16 @@ describe('#validate()', () => {
 
 	it('should fail with old Serverless version', () => {
 		serverless.version = '1.6.0';
-		return expect(awsAlias.validate()).to.be.rejectedWith('must be >= 1.12.0');
+		return expect(awsAlias.validate()).to.be.rejectedWith('must be >= 2.0.0');
 	});
 
-	it('should succeed with Serverless version 1.12.0', () => {
-		serverless.version = '1.12.0';
+	it('should succeed with Serverless version 2.0.0', () => {
+		serverless.version = '2.0.0';
 		return expect(awsAlias.validate()).to.eventually.be.fulfilled;
 	});
 
-	it('should succeed with Serverless version 1.13.0', () => {
-		serverless.version = '1.13.0';
+	it('should succeed with Serverless version 2.25.2', () => {
+		serverless.version = '2.25.2';
 		return expect(awsAlias.validate()).to.eventually.be.fulfilled;
 	});
 
