@@ -8,7 +8,7 @@
 
 # Serverless AWS alias plugin
 
-**The plugin requires Serverless 1.12 or later!**
+**The plugin requires Serverless ver. 2!**
 
 This plugin enables use of AWS aliases on Lambda functions. The term alias must not
 be mistaken as the stage. Aliases can be deployed to stages, e.g. if you work on
