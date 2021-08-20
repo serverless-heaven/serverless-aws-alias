@@ -86,12 +86,14 @@ class AwsAlias {
 							alias: {
 								usage: 'Name of the alias',
 								shortcut: 'a',
-								required: true
+								required: true,
+								type: 'string',
 							},
 							verbose: {
 								usage: 'Enable verbose output',
 								shortcut: 'v',
-								required: false
+								required: false,
+								type: 'boolean',
 							}
 						}
 					}
